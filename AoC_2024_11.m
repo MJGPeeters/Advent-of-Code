@@ -18,12 +18,6 @@ fclose(fileID);
 
 %% Solve part I
 
-% Rules
-% - If stone is 0, it becomes 1
-% - If the stone has an even number of digits n, leftmost n/2 digits become
-%   one new stone, rightmost n/2 digits become another new stone
-% - If previous rules do not apply, stones number is multiplied by 2024
-
 stones = initialStones;
 
 for blink=1:25
