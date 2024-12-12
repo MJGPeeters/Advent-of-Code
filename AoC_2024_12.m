@@ -48,21 +48,25 @@ for i=1%:numel(uniquePlants)
     regionMap = zeros(mapSize+2);
     regionCount = 0;
 
-    % Find different regions, keep track of perimeter
-    while nnz(plantMap(:,:,i))>nnz(regionMap)
-        regionCount = regionCount+1;
-
-        perimeter = 0;
-        area = 0;
-
-        % Recursively go through region, update regionArray
-        [x,y] = find(plantMap(:,:,i)==1,1);
-        x = 6;
-        y = 5;
-        regionMap(x,y) = regionCount;
-        area = area+1;
-        
-        [perimeterOut,areaOut,regionMapOut] = checkPlants(x,y,i,perimeter,area,regionMap,plantMap);
+    % % Find different regions, keep track of perimeter
+    % while nnz(plantMap(:,:,i))>nnz(regionMap)
+    %     regionCount = regionCount+1;
+    % 
+    %     perimeter = 0;
+    %     area = 0;
+    % 
+    %     % Recursively go through region, update regionArray
+    %     [x,y] = find(plantMap(:,:,i)==1,1);
+    %     x = 6;
+    %     y = 5;
+    %     regionMap(x,y) = regionCount;
+    %     area = area+1;
+    % 
+    %     [perimeterOut,areaOut,regionMapOut] = checkPlants(x,y,i,perimeter,area,regionMap,plantMap);
+    count = 0;
+    for direction=0:3
+        count = count + checkNeighborPlant(x,y,i,direction,plantMap,count);
+    end
 
 
 
@@ -76,8 +80,8 @@ for i=1%:numel(uniquePlants)
         % plantMap(x,y+1,i)==1
         % plantMap(x,y-1,i)==1
 
-        price = price + area*perimeter;
-    end
+        % price = price + area*perimeter;
+    % end
 
 
 
