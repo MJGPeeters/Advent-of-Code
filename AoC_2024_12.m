@@ -3,7 +3,7 @@ adventDay = 12;
 testBool = 0;
 
 if testBool
-    fileName = "Test_2024_" + adventDay + ".txt";
+    fileName = "Test_2024_" + adventDay + "-2.txt";
     mapSize = 10;
 else
     fileName = "Input_2024_" + adventDay + ".txt"; 
@@ -90,17 +90,28 @@ for i=1:numel(uniquePlants)
     while nnz(plantMap(:,:,i))>nnz(regionMap)
         regionCount = regionCount+1;
 
-        area = 1;
-        perimeter = 0;
+        area   = 1;
+        pUp    = zeros(mapSize+2);
+        pDown  = zeros(mapSize+2);
+        pLeft  = zeros(mapSize+2);
+        pRight = zeros(mapSize+2);
+
         [x,y] = find((plantMap(:,:,i)==1).*(regionMap==0),1);
 
         regionMap(x,y) = regionCount;
     
         for direction=0:3
-            [area,perimeter,regionMap] = checkNeighborPlant(x,y,i,direction,plantMap,regionMap,area,perimeter,regionCount);
+            [area,pUp,pDown,pLeft,pRight,regionMap] = checkNeighborPlantII(x,y,i,direction,plantMap,regionMap,area,pUp,pDown,pLeft,pRight,regionCount);
         end
         
-        price = price + area*perimeter;
+        sidesU = findRegions(pUp);
+        sidesD = findRegions(pDown);
+        sidesL = findRegions(pLeft);
+        sidesR = findRegions(pRight);
+
+        sides = sidesU + sidesD + sidesL + sidesR;
+        
+        price = price + area*sides;
     end
 end
 
