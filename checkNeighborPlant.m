@@ -14,7 +14,9 @@
 % 
 % end
 
-function count = checkNeighborPlant(x,y,i,direction,plantMap,count)
+function [area,perimeter,regionMap] = checkNeighborPlant(x,y,plantType,direction,plantMap,regionMap,area,perimeter,regionCount)
+
+% global REGIONMAP
 
 if direction==0
     x = x+1;
@@ -26,9 +28,13 @@ elseif direction==3
     y = y-1;
 end
 
-if plantMap(x,y,i)==1
+if plantMap(x,y,plantType)==0
+    perimeter = perimeter+1;
+elseif regionMap(x,y)==0
+    regionMap(x,y) = regionCount;
+    area = area+1;
     for dir=0:3
-        count = count + checkNeighborPlant(x,y,i,dir,plantMap,count);
+        [area,perimeter,regionMap] = checkNeighborPlant(x,y,plantType,dir,plantMap,regionMap,area,perimeter,regionCount);
     end
 end
 
