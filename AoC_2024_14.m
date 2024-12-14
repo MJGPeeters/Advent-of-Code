@@ -81,7 +81,6 @@ for i=1:numRobots
 end
 fclose(fileID);
 
-% For every time step, save a picture of the locations of the robots
 t = 0;
 while 1
     t = t+1;
