@@ -27,8 +27,8 @@ for i=1:numel(importMap)
         startIndex = find(importMap{i}=='@');
 
         if startIndex
-            x = startIndex;
-            y = i;
+            x0 = startIndex;
+            y0 = i;
         end
     else
         tmp = zeros(1,numMoves);
@@ -40,7 +40,12 @@ for i=1:numel(importMap)
     end
 end
 
+startingBoxArray = boxArray;
+
 %% Solve part I
+
+x = x0;
+y = y0;
 
 for i=1:numel(moveArray)
     direction = moveArray(i);
@@ -50,28 +55,12 @@ for i=1:numel(moveArray)
 
     if direction==0
         yCheck = yCheck-1;
-        firstWallIndex = find(wallArray(1:y,x)==1,1,'last') + 1;
-        emptySpace = find(boxArray(yCheck:-1:firstWallIndex,x)==0,1);
-        xEmpty = x;
-        yEmpty = y - emptySpace;
     elseif direction==1
         xCheck = xCheck+1;
-        firstWallIndex = x + find(wallArray(y,xCheck:end)==1,1,'first') - 1;
-        emptySpace = find(boxArray(y,xCheck:firstWallIndex)==0,1);
-        xEmpty = x + emptySpace;
-        yEmpty = y;
     elseif direction==2
         yCheck = yCheck+1;
-        firstWallIndex = y + find(wallArray(yCheck:end,x)==1,1,'first') - 1;
-        emptySpace = find(boxArray(yCheck:firstWallIndex,x)==0,1);
-        xEmpty = x;
-        yEmpty = y + emptySpace;
     else
         xCheck = xCheck-1;
-        firstWallIndex = find(wallArray(y,1:x)==1,1,'last') + 1;
-        emptySpace = find(boxArray(y,xCheck:-1:firstWallIndex)==0,1);
-        xEmpty = x - emptySpace;
-        yEmpty = y;    
     end
 
     if wallArray(yCheck,xCheck)==1
@@ -80,13 +69,11 @@ for i=1:numel(moveArray)
         x = xCheck;
         y = yCheck;
     else
-        if isempty(emptySpace)
-            continue
-        else
-            boxArray(yCheck,xCheck) = 0;
-            boxArray(yEmpty,xEmpty) = 1;
+        [spaceAvailable,boxArray] = moveBox(yCheck,xCheck,direction,wallArray,boxArray);
+        if spaceAvailable==1
             x = xCheck;
             y = yCheck;
+        else
         end
     end
 end
@@ -106,21 +93,72 @@ tim1 = sprintf('Calculation took %f seconds.', time1);
 disp(out1)
 disp(tim1)
 
-%% Solve part II
-tic 
-
-% Only difference wrt part I is when you want to move up or down and a box
-% is in the way. Now probably need recursive method, first to check all
-% boxes if there is a wall in the way. If there is no wall in the way, mark
-% all the boxes that will be pushed. When moving, move all the marked boxes
-% one step up or down, and move yourself as well. 
-
-result2 = 0;
-
-time2 = toc;
-
-%% Display results of part II
-out2 = sprintf('The new checksum is %d', result2);
-tim2 = sprintf('Calculation took %f seconds.', time2);
-disp(out2)
-disp(tim2)
+% %% Solve part II
+% tic 
+% 
+% boxArray = startingBoxArray;
+% 
+% boxWideArray  = zeros(mapSize,2*mapSize);
+% wallWideArray = zeros(mapSize,2*mapSize);
+% 
+% % Redo map
+% for i=1:mapSize
+%     boxWideArray(:,2*i-1) = boxArray(:,i);
+%     boxWideArray(:,2*i) = 2*boxArray(:,i);
+% 
+%     wallWideArray(:,2*i-1) = wallArray(:,i);
+%     wallWideArray(:,2*i) = wallArray(:,i);
+% end
+% 
+% x = 2*x0-1;
+% y = y0;
+% 
+% for i=1:numel(moveArray)
+%     direction = moveArray(i);
+% 
+%     xCheck = x;
+%     yCheck = y;
+% 
+%     if direction==0
+%         yCheck = yCheck-1;
+%     elseif direction==1
+%         xCheck = xCheck+1;
+%     elseif direction==2
+%         yCheck = yCheck+1;
+%     else
+%         xCheck = xCheck-1;
+%     end
+% 
+%     if wallArray(yCheck,xCheck)==1
+%         continue
+%     elseif boxArray(yCheck,xCheck)==0
+%         x = xCheck;
+%         y = yCheck;
+%     else
+%         spaceAvailable = moveBox(yCheck,xCheck,direction,wallArray,boxArray);
+%         if isempty(emptySpace)
+%             continue
+%         else
+%             boxArray(yCheck,xCheck) = 0;
+%             boxArray(yEmpty,xEmpty) = 1;
+%             x = xCheck;
+%             y = yCheck;
+%         end
+%     end
+% end
+% 
+% % Only difference wrt part I is when you want to move up or down and a box
+% % is in the way. Now probably need recursive method, first to check all
+% % boxes if there is a wall in the way. If there is no wall in the way, mark
+% % all the boxes that will be pushed. When moving, move all the marked boxes
+% % one step up or down, and move yourself as well. 
+% 
+% result2 = 0;
+% 
+% time2 = toc;
+% 
+% %% Display results of part II
+% out2 = sprintf('The new checksum is %d', result2);
+% tim2 = sprintf('Calculation took %f seconds.', time2);
+% disp(out2)
+% disp(tim2)
