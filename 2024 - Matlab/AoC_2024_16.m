@@ -25,7 +25,7 @@ for i=1:numel(importMap)
     tmp2 = find(importMap{i}=='E');
 
     if ~isempty(tmp1)
-        start = [i;tmp1];
+        start = [i;tmp1;2];
     elseif ~isempty(tmp2)
         goal = [i;tmp2];
     end
@@ -56,6 +56,17 @@ end
 %   with direction as the third dimension? 
 
 path = Astar(start,goal,mapArray);
+pathArray = zeros(numel(path),2);
+
+solutionMap = mapArray;
+
+% for i=1:numel(path)
+%     pathArray(i,1) = mod(path(i),100);
+%     pathArray(i,2) = (path(i) - mod(path(i),100))/100;
+% 
+%     solutionMap(pathArray(i,2),pathArray(i,1)) = 2;
+% end
+
 
 
 
