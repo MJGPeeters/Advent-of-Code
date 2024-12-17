@@ -1,6 +1,9 @@
-function path = Astar(start,goal,mapArray)
+function pathArray = AstarAllPaths(start,goal,mapArray)
 
-path = [];
+pathArray = zeros(size(mapArray));
+pathArray(start(1),start(2)) = 1;
+pathArray(goal(1),goal(2)) = 1;
+
 openSet = [start(1);start(2);start(3)];
 
 originDict = dictionary;
@@ -24,7 +27,7 @@ while ~isempty(openSet)
     current = [openSet(1,currentIndex);openSet(2,currentIndex);openSet(3,currentIndex)];
 
     if current(1)==goal(1) && current(2)==goal(2)
-        path = reconstructPath(originDict, current);
+        pathArray = reconstructAllPaths(originDict, 1e4*current(1)+10*current(2)+current(3),zeros(size(mapArray)));
         return
     end
     
@@ -70,11 +73,23 @@ while ~isempty(openSet)
             % Penalty for rotating
             tentativeGScore = gScore(current(1),current(2),current(3)) + 1000; 
         end
+
+        % If tentativeGScore is equal to other gScore, check previous two
+        % locations between current line and previous line. If they are 
+        % different, they come from a different square, if not they just
+        % rotated around a few times to the same position. 
   
-        if tentativeGScore < gScore(neighbor(1),neighbor(2),neighbor(3))
-            originDict(1e4*neighbor(1)+10*neighbor(2)+neighbor(3)) = 1e4*current(1)+10*current(2)+current(3);
-            gScore(neighbor(1),neighbor(2),neighbor(3)) = tentativeGScore;
-            fScore(neighbor(1),neighbor(2),neighbor(3)) = tentativeGScore + abs(goal(1)-neighbor(1)) + abs(goal(2)-neighbor(2));
+        if tentativeGScore <= gScore(neighbor(1),neighbor(2),neighbor(3))
+            if tentativeGScore == gScore(neighbor(1),neighbor(2),neighbor(3))
+                tmp = originDict(1e4*neighbor(1)+10*neighbor(2)+neighbor(3));
+                tmp = tmp{1};
+                newDictEntry = {[tmp, 1e4*current(1)+10*current(2)+current(3)]};
+                originDict(1e4*neighbor(1)+10*neighbor(2)+neighbor(3)) = newDictEntry;
+            else
+                originDict(1e4*neighbor(1)+10*neighbor(2)+neighbor(3)) = {1e4*current(1)+10*current(2)+current(3)};
+                gScore(neighbor(1),neighbor(2),neighbor(3)) = tentativeGScore;
+                fScore(neighbor(1),neighbor(2),neighbor(3)) = tentativeGScore + abs(goal(1)-neighbor(1)) + abs(goal(2)-neighbor(2));
+            end
 
             if openSetSize==0
                 openSet = neighbor;
