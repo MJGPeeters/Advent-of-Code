@@ -1,4 +1,4 @@
-function path = Astar(start,goal,mapArray)
+function [path,fScore,gScore] = Astar(start,goal,mapArray)
 
 path = [];
 openSet = [start(1);start(2);start(3)];
@@ -25,6 +25,7 @@ while ~isempty(openSet)
 
     if current(1)==goal(1) && current(2)==goal(2)
         path = reconstructPath(originDict, current);
+        return
     end
     
     % Remove current from open set
@@ -33,23 +34,23 @@ while ~isempty(openSet)
     for change=1:3
         neighbor = current;
         if change==1
-            if current(3)==1
+            if neighbor(3)==1
                 neighbor(3) = 4;
             else 
                 neighbor(3) = neighbor(3)-1;
             end
         elseif change==2
-            if current(3)==0
+            if neighbor(3)==1
                 neighbor(1) = neighbor(1)-1;
-            elseif current(3)==1
+            elseif neighbor(3)==2
                 neighbor(2) = neighbor(2)+1;
-            elseif current(3)==2
+            elseif neighbor(3)==3
                 neighbor(1) = neighbor(1)+1;
             else
                 neighbor(2) = neighbor(2)-1;
             end
         else
-            if current(3)==4
+            if neighbor(3)==4
                 neighbor(3) = 1;
             else 
                 neighbor(3) = neighbor(3)+1;
