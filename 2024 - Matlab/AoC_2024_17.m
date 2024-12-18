@@ -1,9 +1,9 @@
 %% Preamble
 adventDay = 17;
-testBool = 0;
+testBool = 1;
 
 if testBool
-    fileName = "Tests/Test_2024_" + adventDay + ".txt";
+    fileName = "Tests/Test_2024_" + adventDay + "-1.txt";
 else
     fileName = "Inputs/Input_2024_" + adventDay + ".txt"; 
 end
@@ -36,88 +36,78 @@ while ~isscalar(line)
 end
 fclose(fileID);
 
-%% Solve part I
-tic
+% %% Solve part I
+% tic
+% 
+% programLength = numel(program);
+% pointer = 0;
+% output = [];
+% 
+% while pointer<programLength-1
+%     opcode = program(pointer+1);
+%     operand = program(pointer+2);
+%     [pointer,regA,regB,regC,output] = adventComputer(pointer,opcode,operand,regA,regB,regC,output);
+% end
+% 
+% outputString = '';
+% for i=1:numel(output)
+%     outputString = [outputString char(string(output(i))) ','];
+% end
+% 
+% time1 = toc;
+
+% %% Display results of part I
+% out1 = sprintf('The output of the program is %s.', output);
+% tim1 = sprintf('Calculation took %f seconds.', time1);
+% disp(out1)
+% disp(tim1)
+
+%% Solve part II
+tic 
 
 programLength = numel(program);
-pointer = 0;
-output = [];
 
-while pointer<programLength-1
-    opcode = program(pointer+1);
-    operand = program(pointer+2);
-    if regA==540861 && regB==618126
-        disp('test')
+regAStart = 0;
+counter = 0;
+
+while 1
+    pointer = 0;
+    output = [];
+    outputCount = 0;
+    regA = regAStart + counter;
+    regB = 0;
+    regC = 0;
+    programIndex = 1;
+    viable = 1;
+
+    while pointer<programLength-1
+        opcode = program(pointer+1);
+        operand = program(pointer+2);
+        [pointer,regA,regB,regC,output,programIndex,viable] = adventComputerRegA(pointer,opcode,operand,regA,regB,regC,output,program,programIndex,viable);
+        % disp([regA,regB,regC,pointer])
+        % if regA==0 && regB==0 && regC==0
+        %     disp('test')
+        % end
+        if viable==0
+            break
+        end
     end
-    [pointer,regA,regB,regC,output] = adventComputer(pointer,opcode,operand,regA,regB,regC,output);
-    disp([regA,regB, regC])
+    
+    if numel(output)==numel(program)
+        if all(output==program)
+            break
+        end
+    end
+
+    counter = counter+1;
 end
 
-outputString = '';
-for i=1:numel(output)
-    outputString = [outputString char(string(output(i))) ','];
-end
+result2 = regAStart+counter;
 
-time1 = toc;
+time2 = toc;
 
-%% Display results of part I
-out1 = sprintf('The output of the program is %s.', output);
-tim1 = sprintf('Calculation took %f seconds.', time1);
-disp(out1)
-disp(tim1)
-
-% %% Solve part II
-% tic 
-% 
-% % in Astar function, do something when tentativeGScore equals the gScore of
-% % the neighbor. That means that a path is found with the same score, so
-% % another best path. Maybe just change < to =, and save a list of all the
-% % visited squares instead of a dict (the order is not important now). Maybe
-% % just keep a map-like array with all zeros, and mark with ones the squares
-% % that are visited. At the end, sum all the ones. Or even simply keep a
-% % counter of the number of visited squares. Then double-counting is a risk.
-% 
-% pathArray = AstarAllPaths(start,goal,mapArray);
-% 
-% solutionMap = ones(size(mapArray));
-% solutionMap(mapArray==1) = 0;
-% 
-% imagesc(mapArray + 0.5*pathArray)
-% colormap gray
-% 
-% % score = -1;
-% % pos = 0;
-% % 
-% % test = numel(path);
-% % 
-% % for i=1:numel(path)
-% %     posPrev = pos;
-% %     pos = (path(i) - mod(path(i),10))/10;
-% % 
-% %     if pos==posPrev
-% %         score = score+1000;
-% %     else
-% %         score = score+1;
-% %     end
-% % 
-% %     % tmp = path(i);
-% %     % pathArray(i,3) = mod(tmp,10);
-% %     % 
-% %     % tmp = (tmp - mod(tmp,10))/10;
-% %     % pathArray(i,1) = mod(tmp,1000);
-% %     % pathArray(i,2) = (tmp - mod(tmp,1000))/1000;
-% %     % 
-% %     % solutionMap(pathArray(i,1),pathArray(i,2)) = 0.7;
-% % end
-% 
-% result1 = score;
-% 
-% result2 = 0;
-% 
-% time2 = toc;
-% 
-% %% Display results of part II
-% out2 = sprintf('%d tiles are part of at least one of the best paths.', result2);
-% tim2 = sprintf('Calculation took %f seconds.', time2);
-% disp(out2)
-% disp(tim2)
+%% Display results of part II
+out2 = sprintf('The program outputs itself for register A equals %d', result2);
+tim2 = sprintf('Calculation took %f seconds.', time2);
+disp(out2)
+disp(tim2)
