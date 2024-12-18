@@ -1,6 +1,6 @@
 %% Preamble
 adventDay = 17;
-testBool = 1;
+testBool = 0;
 
 if testBool
     fileName = "Tests/Test_2024_" + adventDay + "-1.txt";
@@ -67,7 +67,7 @@ tic
 
 programLength = numel(program);
 
-regAStart = 0;
+regAStart = 8^15;
 counter = 0;
 
 while 1
