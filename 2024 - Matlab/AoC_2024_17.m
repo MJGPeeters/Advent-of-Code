@@ -67,39 +67,31 @@ tic
 
 programLength = numel(program);
 
-regAStart = 8^15;
+regAStart = 0;
 counter = 0;
+output = [];
 
-while 1
-    pointer = 0;
-    output = [];
-    outputCount = 0;
-    regA = regAStart + counter;
-    regB = 0;
-    regC = 0;
-    programIndex = 1;
-    viable = 1;
+for programIndex=programLength:-1:1
+    regAStart = regAStart*8;
 
-    while pointer<programLength-1
-        opcode = program(pointer+1);
-        operand = program(pointer+2);
-        [pointer,regA,regB,regC,output,programIndex,viable] = adventComputerRegA(pointer,opcode,operand,regA,regB,regC,output,program,programIndex,viable);
-        % disp([regA,regB,regC,pointer])
-        % if regA==0 && regB==0 && regC==0
-        %     disp('test')
-        % end
-        if viable==0
+    while 1
+        output = [];
+        regA = regAStart;
+        regB = 0;
+        regC = 0;
+        
+        for pointer=0:2:14
+            opcode = program(pointer+1);
+            operand = program(pointer+2);
+            [regA,regB,regC,output] = adventComputerRegA(pointer,opcode,operand,regA,regB,regC,output,program,programIndex);
+        end
+
+        if ~(isempty(output) || output~=program(programIndex))
             break
         end
-    end
-    
-    if numel(output)==numel(program)
-        if all(output==program)
-            break
-        end
-    end
 
-    counter = counter+1;
+        regAStart = regAStart+1;
+    end
 end
 
 result2 = regAStart+counter;

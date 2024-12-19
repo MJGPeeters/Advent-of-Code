@@ -1,4 +1,4 @@
-function [pointer,regA,regB,regC,output,programIndex,viable] = adventComputerRegA(pointer,opcode,operand,regA,regB,regC,output,program,programIndex,viable)
+function [regA,regB,regC,output] = adventComputerRegA(pointer,opcode,operand,regA,regB,regC,output,program,programIndex)
 
 comboOperands = [0,1,2,3,regA,regB,regC];
 
