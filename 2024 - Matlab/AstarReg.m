@@ -10,7 +10,7 @@ gScore = Inf(mapSize);
 gScore(start(1),start(2)) = 0;
 
 fScore = Inf(mapSize);
-fScore(start(1),start(2)) = abs(sum(goal-start));
+fScore(start(1),start(2)) = sum(abs(goal-start));
 
 while ~isempty(openSet)
     
@@ -25,7 +25,7 @@ while ~isempty(openSet)
     current = [openSet(1,currentIndex);openSet(2,currentIndex)];
 
     if all(current==goal)
-        path = reconstructPath(originDict, current);
+        path = reconstructPathReg(originDict, current);
     end
     
     % Remove current from open set
@@ -53,7 +53,7 @@ while ~isempty(openSet)
         if tentativeGScore < gScore(neighbor(1),neighbor(2))
             originDict(neighbor(1)+100*neighbor(2)) = current(1)+100*current(2);
             gScore(neighbor(1),neighbor(2)) = tentativeGScore;
-            fScore(neighbor(1),neighbor(2)) = tentativeGScore + abs(sum(goal-neighbor));
+            fScore(neighbor(1),neighbor(2)) = tentativeGScore + sum(abs(goal-neighbor));
 
             if openSetSize==0
                 openSet = neighbor;
