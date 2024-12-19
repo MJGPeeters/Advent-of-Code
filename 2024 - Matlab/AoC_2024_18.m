@@ -33,8 +33,7 @@ fclose(fileID);
 start = [mapSize, 1];
 goal  = [1, mapSize];
 
-path = AstarRegular(start,goal,mapArray);
-
+path = AstarReg(start,goal,mapArray);
 
 % pathArray = zeros(numel(path),2);
 % 
