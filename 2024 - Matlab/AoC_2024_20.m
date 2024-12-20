@@ -21,15 +21,15 @@ for i=1:numel(importMap)
     tmp2 = find(importMap{i}=='E');
 
     if ~isempty(tmp1)
-        current = [i+1,tmp1+1];
+        current = [i+20,tmp1+20];
     elseif ~isempty(tmp2)
-        goal = [i+1,tmp2+1];
+        goal = [i+20,tmp2+20];
     end
 end
 
 % Padding
-mapArray = ones(mapSize+2);
-mapArray(2:mapSize+1,2:mapSize+1) = tmpArray;
+mapArray = ones(mapSize+40);
+mapArray(21:mapSize+20,21:mapSize+20) = tmpArray;
 
 %% Solve part I
 
@@ -69,28 +69,56 @@ result1 = timeSaves;
 time1 = toc;
 
 %% Display results of part I
-out1 = sprintf('There are %d cheats that save at least one hundred ps.', result1);
-tim1 = sprintf('Calculation took %f seconds.', time1);
-disp(out1)
-disp(tim1)
+fprintf('There are %d cheats that save at least 100 ps.\n', result1);
+fprintf('Calculation took %f seconds.\n', time1);
 
-% %% Solve part II
-% tic 
-% 
-% pathArray = AstarAllPaths(start,goal,mapArray);
-% 
-% solutionMap = ones(size(mapArray));
-% solutionMap(mapArray==1) = 0;
-% 
-% imagesc(mapArray + 0.5*pathArray)
-% colormap gray
-% 
-% result2 = 0;
-% 
-% time2 = toc;
-% 
-% %% Display results of part II
-% out2 = sprintf('%d tiles are part of at least one of the best paths.', result2);
-% tim2 = sprintf('Calculation took %f seconds.', time2);
-% disp(out2)
-% disp(tim2)
+%% Solve part II
+
+tic
+
+minTimeSave = 100;
+timeSaves = 0;
+
+% List of all possible cheats with length of at most 20
+diff = zeros(2,841);
+n = 1;
+
+for i=-20:20
+    for j=-20:20
+        if abs(i)+abs(j)<=20
+            diff(1,n) = i;
+            diff(2,n) = j;
+            n = n+1;
+        end
+    end
+end
+
+% For every step along the route, check all possible cheats. If a cheat is 
+% possible, determine time saved due to cheat. 
+for i=1:size(route,2)
+    if timeArray(route(1,i),route(2,i))<minTimeSave
+        break
+    end
+    
+    for j=1:length(diff)
+        timeSave = 0;
+        pos  = [route(1,i),route(2,i)];
+        posEnd = [pos(1)+diff(1,j),pos(2)+diff(2,j)];
+
+        if mapArray(posEnd(1),posEnd(2))==0
+            timeSave = timeArray(pos(1),pos(2)) - timeArray(posEnd(1),posEnd(2)) - sum(abs(diff(:,j)));
+        end
+
+        if timeSave>=minTimeSave
+            timeSaves = timeSaves+1;
+        end
+    end
+end
+
+result1 = timeSaves;
+
+time1 = toc;
+
+%% Display results of part I
+fprintf('With the new rules, there are %d cheats that save at least 50 ps.\n', result1);
+fprintf('Calculation took %f seconds.\n', time1);
