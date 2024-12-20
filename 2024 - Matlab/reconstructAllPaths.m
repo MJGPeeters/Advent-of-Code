@@ -4,7 +4,7 @@ while isKey(originDict,current)
     current = originDict(current);
     current = current{1};
 
-    if numel(current)>1
+    if numel(current)>1 && numel(unique(current))>1
         for i=1:numel(current)
             pathArray = reconstructAllPaths(originDict,current(i),pathArray);
         end

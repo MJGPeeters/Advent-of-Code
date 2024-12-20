@@ -1,10 +1,10 @@
 %% Preamble
 adventDay = 16;
-testBool = 1;
+testBool = 0;
 
 if testBool
-    fileName = "Tests/Test_2024_" + adventDay + "-1.txt";
-    mapSize = 15;
+    fileName = "Tests/Test_2024_" + adventDay + "-2.txt";
+    mapSize = 17;
 else
     fileName = "Inputs/Input_2024_" + adventDay + ".txt"; 
     mapSize = 140;
@@ -115,8 +115,6 @@ colormap gray
 %     % 
 %     % solutionMap(pathArray(i,1),pathArray(i,2)) = 0.7;
 % end
-
-result1 = score;
 
 result2 = 0;
 
