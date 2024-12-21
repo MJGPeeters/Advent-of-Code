@@ -58,14 +58,36 @@ time1 = toc;
 fprintf('The sum of the complexities is %d.\n', result1);
 fprintf('Calculation took %f seconds.\n', time1);
 
-% %% Solve part II
-% 
-% tic
-% 
-% result1 = 0;
-% 
-% time1 = toc;
-% 
-% %% Display results of part II
-% fprintf('With the new rules, there are %d cheats that save at least 50 ps.\n', result1);
-% fprintf('Calculation took %f seconds.\n', time1);
+%% Solve part II
+
+tic
+
+complexity = 0;
+numRobots = 25;
+for n=1:numel(importCodes)
+    code = importCodes{n};
+
+    for i=1:numel(code)
+        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
+    end
+
+    presses = buttonPresses(codeArray,numDict);
+
+    for i=1:numRobots
+        presses = buttonPresses(presses,dirDict);
+    end
+       
+    complexity = complexity + length(presses)*double(string(code(1:end-1)));
+end
+
+result1 = complexity;
+
+time1 = toc;
+
+result1 = 0;
+
+time1 = toc;
+
+%% Display results of part II
+fprintf('With the new rules, there are %d cheats that save at least 50 ps.\n', result1);
+fprintf('Calculation took %f seconds.\n', time1);
