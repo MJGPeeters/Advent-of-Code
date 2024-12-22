@@ -1,6 +1,6 @@
 %% Preamble
 adventDay = 22;
-testBool = 1;
+testBool = 0;
 
 if testBool
     fileName = "Tests/Test_2024_" + adventDay + ".txt";
@@ -12,31 +12,6 @@ end
 importNumbers = importdata(fileName);
 
 %% Solve part I
-
-tic
-
-importNumbers = [1 2 3 2024];
-
-tmp = importNumbers;
-
-for i=1:2000
-    tmp = mod(bitxor(tmp*64,tmp),16777216);
-    tmp = mod(bitxor(floor(tmp/32),tmp),16777216);
-    tmp = mod(bitxor(tmp*2048,tmp),16777216);
-end
-
-sumTotal = sum(tmp);
-
-result1 = sumTotal;
-
-time1 = toc;
-
-%% Display results of part I
-fprintf('The sum of all the secret numbers is %d.\n', result1);
-fprintf('Calculation took %f seconds.\n', time1);
-
-%% Solve part II
-
 tic
 
 tmp = importNumbers;
@@ -54,39 +29,24 @@ for i=1:2000
     changeArray(:,i) = numberArray(:,i+1)-numberArray(:,i);
 end
 
-minChange = -20;
-maxChange = +20;
+%% Display results of part I
+fprintf('The sum of all the secret numbers is %d.\n', sum(tmp));
+toc
 
-sumArray = [];
+%% Solve part II
+tic
 
-for i=minChange:maxChange
-    for j=minChange:maxChange
-        for k=minChange:maxChange
-            for l=0:maxChange
-                tmp = 0;
-                for n=1:size(changeArray,1)
-                    changes = [i,j,k,l];
-                    
-                    index = strfind(changeArray(n,:),changes);
-                    if ~isempty(index)
-                        out = numberArray(n,index+4);
-                        tmp = tmp+out;
-                    end
-                end
-                if tmp==23
-                    disp([i j k l])
-                end
-                sumArray = [sumArray, tmp];
-            end
-        end
+numBuyers = size(numberArray,1);
+overviewArray = zeros(numBuyers,19^4);
+
+for n=1:numBuyers
+    for i=1997:-1:1
+        m = sum([20^3 20^2 20 1].*(9+changeArray(n,i:i+3)));
+        B = numberArray(n,i+4);
+        overviewArray(n,m) = B;
     end
 end
 
-
-result2 = 0;
-
-time2 = toc;
-
 %% Display results of part II
-fprintf('You can get at most %d bananas.\n', result2);
-fprintf('Calculation took %f seconds.\n', time2);
+fprintf('You can get at most %d bananas.\n', max(sum(overviewArray,1)));
+toc
