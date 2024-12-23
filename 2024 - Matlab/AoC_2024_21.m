@@ -52,42 +52,58 @@ end
 
 result1 = complexity;
 
-time1 = toc;
-
 %% Display results of part I
 fprintf('The sum of the complexities is %d.\n', result1);
-fprintf('Calculation took %f seconds.\n', time1);
+toc
 
 %% Solve part II
 
 tic
 
 complexity = 0;
-numRobots = 25;
+numRobots = 3;
+
 for n=1:numel(importCodes)
-    code = importCodes{n};
+    code = ['A',importCodes{n}];
 
     for i=1:numel(code)
         if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
     end
 
-    presses = buttonPresses(codeArray,numDict);
+    presses = [100,buttonPresses(codeArray,numDict)];
+    
+    % Go from individual presses to movement between two subsequent presses
+    tmpPresses = ones(2,numel(presses)-1);
+    for i=1:numel(presses)-1
+        start = presses(i);
+        goal  = presses(i+1);
+
+        tmpPresses(1,i) = 10*start+goal;
+    end
+
+    % Count unique instances of movements
+    for i=length(tmpPresses):-1:1
+        idxs = find(tmpPresses(1,:)==tmpPresses(1,i));
+        tmpPresses(2,idxs(1)) = tmpPresses(2,idxs(1)) + numel(idxs)-1;
+        if numel(idxs)>1
+            tmpPresses(:,idxs(end)) = [];
+        end
+    end
+
+    presses = tmpPresses;
+
+    presses = buttonPressesFast(presses,dirDict);
+
 
     for i=1:numRobots
         presses = buttonPresses(presses,dirDict);
     end
        
-    complexity = complexity + length(presses)*double(string(code(1:end-1)));
+    complexity = complexity + sum(presses(2,:))*double(string(code(1:end-1)));
 end
 
-result1 = complexity;
-
-time1 = toc;
-
-result1 = 0;
-
-time1 = toc;
+result2 = complexity;
 
 %% Display results of part II
-fprintf('With the new rules, there are %d cheats that save at least 50 ps.\n', result1);
-fprintf('Calculation took %f seconds.\n', time1);
+fprintf('Now, the sum of the complexities is %d.\n', result2);
+toc

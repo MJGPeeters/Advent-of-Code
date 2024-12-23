@@ -1,6 +1,5 @@
 function presses = buttonPresses(code,dict)
 
-code = [100,code];
 presses = zeros(1,3*length(code));
 indexEnd = 1;
 
