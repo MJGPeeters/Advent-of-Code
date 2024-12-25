@@ -9,15 +9,6 @@ else
 end
 
 %% Read data
-% fileID = fopen(fileName);
-% 
-% line = fgetl(fileID);
-% 
-% while line~=-1
-% 
-% 
-% end
-
 importData = importdata(fileName);
 numElements = length(importData);
 
