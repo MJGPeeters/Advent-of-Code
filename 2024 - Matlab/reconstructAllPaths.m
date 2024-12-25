@@ -1,5 +1,11 @@
 function pathArray = reconstructAllPaths(originDict,current,pathArray)
 
+tmp = (current - mod(current,10))/10;
+tmp1 = mod(tmp,1000);
+tmp2 = (tmp - mod(tmp,1000))/1000;
+
+pathArray(tmp1,tmp2) = 1;
+
 while isKey(originDict,current)
     current = originDict(current);
     current = current{1};
