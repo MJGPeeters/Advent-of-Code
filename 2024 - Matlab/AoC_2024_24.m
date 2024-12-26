@@ -51,14 +51,18 @@ result1 = sum(prod(zValues,1));
 fprintf('The decimal output is %d.\n', result1);
 toc
 
-% %% Solve part II
-% 
-% tic
-% 
-% 
-% 
-% result2 = 0;
-% 
-% %% Display results of part II
-% fprintf('Now, the sum of the complexities is %d.\n', result2);
-% toc
+%% Solve part II
+
+tic
+
+for i=0:zMax
+    tmp = logicGate(d(sprintf('z%02d',i)),d);
+    zValues(1,i+1) = tmp{1};
+    zValues(2,i+1) = 2^i;
+end
+
+result2 = 0;
+
+%% Display results of part II
+fprintf('Now, the sum of the complexities is %d.\n', result2);
+toc
