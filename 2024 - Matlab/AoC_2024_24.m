@@ -56,9 +56,10 @@ toc
 tic
 
 for i=0:zMax
-    tmp = logicGate(d(sprintf('z%02d',i)),d);
-    zValues(1,i+1) = tmp{1};
-    zValues(2,i+1) = 2^i;
+    tmp = logicGateOrigin(d(sprintf('z%02d',i)),d);
+    cells{i+1} = tmp;
+    % disp(i)
+    % disp(tmp)
 end
 
 result2 = 0;
