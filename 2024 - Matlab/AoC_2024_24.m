@@ -56,7 +56,7 @@ toc
 tic
 
 for i=0:zMax
-    tmp = logicGateOrigin(d(sprintf('z%02d',i)),d);
+    tmp = logicGateOrigin(d(sprintf('z%02d',i)),d,'');
     cells{i+1} = tmp;
     % disp(i)
     % disp(tmp)
