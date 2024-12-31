@@ -42,6 +42,44 @@ toc
 tic
 
 sortedKeys = sort(keys(d));
+k = 0;
+
+for i=1:numel(sortedKeys)
+    member1 = sortedKeys(i);
+    char1 = char(member1);
+    memberList = d(member1);
+    memberList = memberList{1};
+    for n=1:numel(memberList)-1
+        member2 = memberList(n);
+        char2 = char(member2);
+        try
+            memberList2 = d(member2);
+            memberList2 = memberList2{1};
+            for m=n+1:numel(memberList)
+                member3 = memberList(m);
+                char3 = char(member3);
+                if any(memberList2==member3) 
+                    if (char1(1)=='t' || char2(1)=='t' || char3(1)=='t')
+                       k = k+1;
+                    end
+                    threeDict()
+                end
+            end
+        end
+    end
+end
+
+result1 = k;
+
+%% Display results of part I
+fprintf('%d networks contain at least one valid computer.\n', result1);
+toc
+
+%% Solve part II
+
+tic
+
+sortedKeys = sort(keys(d));
 networks = [];
 
 for i=1:numel(sortedKeys)
@@ -59,29 +97,15 @@ for i=1:numel(sortedKeys)
                 member3 = memberList(m);
                 char3 = char(member3);
                 if any(memberList2==member3)
-                    if char1(1)=='t' || char2(1)=='t' || char3(1)=='t'
-                        networks = [networks; member1 member2 member3];
-                    end
+                    networks = [networks; member1 member2 member3];
                 end
             end
         end
     end
 end
 
-result1 = size(networks,1);
+result2 = 0;
 
-%% Display results of part I
-fprintf('%d networks contain at least one valid computer.\n', result1);
+%% Display results of part II
+fprintf('The password is %s.\n', result2);
 toc
-
-% %% Solve part II
-% 
-% tic
-% 
-% 
-% 
-% result2 = 0;
-% 
-% %% Display results of part II
-% fprintf('Now, the sum of the complexities is %d.\n', result2);
-% toc
