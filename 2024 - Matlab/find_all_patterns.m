@@ -2,7 +2,7 @@ function [out,patternDict] = find_all_patterns(pattern,towels,patternDict)
 
 numTowels = numel(towels);
 
-if isscalar(pattern) && (pattern=='r' || pattern=='b' || pattern=='g')
+if isscalar(pattern) && (pattern=='w' || pattern=='b' || pattern=='g' || pattern=='u')
     numOptions = 1;
 elseif isscalar(pattern)
     numOptions = 0;
@@ -17,10 +17,9 @@ else
             continue
         end
         
-        startPattern = pattern(1:lenTowel);
         endPattern = pattern(lenTowel+1:end);
 
-        if strcmp(startPattern,towels{i})
+        if strcmp(pattern(1:lenTowel),towels{i})
             if isempty(endPattern)
                 tmpOptions = 1;
             elseif isKey(patternDict,string(endPattern))
