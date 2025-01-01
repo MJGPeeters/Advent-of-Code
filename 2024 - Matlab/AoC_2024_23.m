@@ -9,7 +9,6 @@ else
 end
 
 %% Read data
-tic
 fileID = fopen(fileName);
 line = fgetl(fileID);
 
@@ -36,7 +35,7 @@ while line~=-1
 
     line = fgetl(fileID);
 end
-toc
+
 %% Solve part I
 
 tic
@@ -52,17 +51,14 @@ for i=1:numel(sortedKeys)
     for n=1:numel(memberList)-1
         member2 = memberList(n);
         char2 = char(member2);
-        try
+        if isKey(d,member2)
             memberList2 = d(member2);
             memberList2 = memberList2{1};
             for m=n+1:numel(memberList)
                 member3 = memberList(m);
                 char3 = char(member3);
-                if any(memberList2==member3) 
-                    if (char1(1)=='t' || char2(1)=='t' || char3(1)=='t')
-                       k = k+1;
-                    end
-                    threeDict()
+                if any(memberList2==member3) && (char1(1)=='t' || char2(1)=='t' || char3(1)=='t')
+                   k = k+1;
                 end
             end
         end
@@ -80,32 +76,41 @@ toc
 tic
 
 sortedKeys = sort(keys(d));
-networks = [];
+mostMembers = 0;
 
 for i=1:numel(sortedKeys)
     member1 = sortedKeys(i);
     char1 = char(member1);
     memberList = d(member1);
     memberList = memberList{1};
-    for n=1:numel(memberList)-1
-        member2 = memberList(n);
-        char2 = char(member2);
-        try
-            memberList2 = d(member2);
-            memberList2 = memberList2{1};
-            for m=n+1:numel(memberList)
-                member3 = memberList(m);
-                char3 = char(member3);
-                if any(memberList2==member3)
-                    networks = [networks; member1 member2 member3];
+
+    n = 0;
+
+    while numel(memberList)+1-n>mostMembers && n<3
+        if n==0 && check_all_connections(memberList,d)
+            mostMembers = numel(memberList)+1;
+            largestNetwork = [member1; memberList];
+        elseif n==1
+            for k=1:numel(memberList)
+                tmpMemberList = memberList;
+                tmpMemberList(k) = [];
+                if check_all_connections(tmpMemberList,d)
+                    mostMembers = numel(tmpMemberList)+1;
+                    largestNetwork = [member1; tmpMemberList];
                 end
             end
         end
+        n = n+1;
     end
 end
 
-result2 = 0;
+networkString = '';
+for i=1:numel(largestNetwork)
+    networkString = [networkString ',' largestNetwork(i)];
+end
+
+networkString = join(networkString(3:end),'');
 
 %% Display results of part II
-fprintf('The password is %s.\n', result2);
+fprintf('The password is %s.\n', networkString);
 toc
