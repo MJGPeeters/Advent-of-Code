@@ -54,12 +54,80 @@ toc
 %% Solve part II
 
 tic
+swapString = [];
 
 for i=0:zMax
-    tmp = logicGateOrigin(d(sprintf('z%02d',i)),d,'');
-    cells{i+1} = tmp;
-    % disp(i)
-    % disp(tmp)
+    % For every z-value (z00, z01 etc.)
+
+    % Find the complete logic tree
+    [tmp,treeOutputs] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"");
+
+    % Check if it is the right length
+    if i==1
+        lengthGoal = 3;
+    elseif i==2
+        lengthGoal = 7;
+    else
+        lengthGoal = 15 + 8*(i-3);
+    end
+
+    % If not, start swapping inputs (only the ones that are part of this
+    % logic tree) until it is the right length   
+    flag = 1;
+
+    if numel(tmp)~=lengthGoal
+        for n=1:numel(treeOutputs)
+            if flag==0
+                break
+            end
+            for m=1:numel(allOutputs)
+                % Swap two inputs
+                tmpGate = d(treeOutputs(n));
+                d(treeOutputs(n)) = d(allOutputs(m));
+                d(allOutputs(m))  = tmpGate;
+
+                % Find new complete logic tree
+                [stringOutput,treeOutputs] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"");
+        
+                % Check length
+                if numel(stringOutput)==lengthGoal
+                    % If a good swap is found, log the two inputs that are swapped
+                    swapString = [swapString;treeOutputs(n);allOutputs(m)];
+                    flag = 0;
+                    break
+                end
+            end
+        end
+    end
+    
+    %% Possible pitfalls/improvements
+    % Now it is assumed that there is only one swap for every z-value. If
+    % after going through all the swaps no valid solution is found, two
+    % swaps might be tried.
+
+    % Not it is assumed that only checking the length is enough. Maybe more
+    % is needed, such as checking if all lower values are incorporated
+
+
+
+
+
+    % tmp = logicGateOrigin(d(sprintf('z%02d',i)),d,'');
+    % tmp(tmp=="") = [];
+    % cells{i+1} = tmp;
+    % 
+    % correct = 1;
+    % 
+    % for n=0:i-1
+    %     if ~any(tmp==sprintf('x%02d',n))
+    %         correct = 0;
+    %         break
+    %     end
+    % end
+    % 
+    % if correct==0
+    %     disp(i)
+    % end
 end
 
 result2 = 0;
