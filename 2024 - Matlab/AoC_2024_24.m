@@ -18,6 +18,7 @@ line = fgetl(fileID);
 
 d = dictionary;
 
+allOutputs = [];
 i = 1;
 
 while isempty(line) || all(line~=-1)
@@ -27,6 +28,7 @@ while isempty(line) || all(line~=-1)
     elseif i>lineIndex
         tmp = strsplit(line);
         d(string(tmp{end})) = {{tmp{1}, tmp{2}, tmp{3}}};
+        allOutputs = [allOutputs; tmp{end}];
     end
 
     i = i+1;
@@ -56,20 +58,22 @@ toc
 tic
 swapString = [];
 
-for i=0:zMax
-    % For every z-value (z00, z01 etc.)
+compareInputs = ["x00";"y00"];
+for i=1:zMax
+    compareInputs = [compareInputs;sprintf('x%02d',i);sprintf('y%02d',i)];
+end
 
+for i=0:zMax
+    if numel(swapString)==8
+        break
+    end
+    % For every z-value (z00, z01 etc.)
+    
     % Find the complete logic tree
-    [tmp,treeOutputs] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"");
+    [tmp,treeOutputs,~] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"", "");
 
     % Check if it is the right length
-    if i==1
-        lengthGoal = 3;
-    elseif i==2
-        lengthGoal = 7;
-    else
-        lengthGoal = 15 + 8*(i-3);
-    end
+    lengthGoal = 3 + 4*i;
 
     % If not, start swapping inputs (only the ones that are part of this
     % logic tree) until it is the right length   
@@ -77,61 +81,70 @@ for i=0:zMax
 
     if numel(tmp)~=lengthGoal
         for n=1:numel(treeOutputs)
-            if flag==0
+            tmp1 = d(treeOutputs(n));
+
+            if flag==0 
                 break
             end
-            for m=1:numel(allOutputs)
+            for m=1:size(allOutputs,1)
+
+                tmpDict = d;
+
                 % Swap two inputs
-                tmpGate = d(treeOutputs(n));
-                d(treeOutputs(n)) = d(allOutputs(m));
-                d(allOutputs(m))  = tmpGate;
+                tmp2 = tmpDict(allOutputs(m,:));
+
+                tmpDict(treeOutputs(n)) = tmp2;
+                tmpDict(allOutputs(m,:)) = tmp1;
 
                 % Find new complete logic tree
-                [stringOutput,treeOutputs] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"");
-        
+                [stringOutput,tmpTreeOutputs,tmpInputsAll] = logicGateOrigin(d(sprintf('z%02d',i)),tmpDict,'',"","");
+                
+                tmpInputsAll = sort(tmpInputsAll(2:end));
+                tmpInputsX = tmpInputsAll(1:end/2);
+                tmpInputsY = tmpInputsAll(end/2+1:end);
+
+                numInputs = numel(tmpInputsX);
+
+                tmpInputs = strings(2*numInputs,1);
+                for k=1:numInputs
+                    tmpInputs(2*k-1) = tmpInputsX(k);
+                    tmpInputs(2*k)   = tmpInputsY(k);
+                end
+
                 % Check length
-                if numel(stringOutput)==lengthGoal
+                if numel(stringOutput)==lengthGoal && all(tmpInputs==compareInputs(1:2*(i+1)))
                     % If a good swap is found, log the two inputs that are swapped
-                    swapString = [swapString;treeOutputs(n);allOutputs(m)];
+                    swapString = [swapString;tmpTreeOutputs(n);allOutputs(m,:)];
+                    d = tmpDict;
                     flag = 0;
                     break
                 end
             end
         end
     end
-    
+
     %% Possible pitfalls/improvements
     % Now it is assumed that there is only one swap for every z-value. If
     % after going through all the swaps no valid solution is found, two
     % swaps might be tried.
-
-    % Not it is assumed that only checking the length is enough. Maybe more
-    % is needed, such as checking if all lower values are incorporated
-
-
-
-
-
-    % tmp = logicGateOrigin(d(sprintf('z%02d',i)),d,'');
-    % tmp(tmp=="") = [];
-    % cells{i+1} = tmp;
-    % 
-    % correct = 1;
-    % 
-    % for n=0:i-1
-    %     if ~any(tmp==sprintf('x%02d',n))
-    %         correct = 0;
-    %         break
-    %     end
-    % end
-    % 
-    % if correct==0
-    %     disp(i)
-    % end
 end
 
-result2 = 0;
+result2 = join(sort(swapString),',');
 
 %% Display results of part II
-fprintf('Now, the sum of the complexities is %d.\n', result2);
+fprintf('%s.\n', result2);
 toc
+
+for i=0:zMax
+    % Find the complete logic tree
+    [tmp,treeOutputs,~] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"","");
+
+    cells{i+1} = tmp;
+
+    % Check if it is the right length
+    lengthGoal = 3 + 4*i;
+
+    if numel(tmp)~=lengthGoal
+        disp(i)
+    end
+end
