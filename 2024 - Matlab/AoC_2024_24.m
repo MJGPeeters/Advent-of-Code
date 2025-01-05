@@ -113,11 +113,35 @@ for i=0:zMax
 
                 % Check length
                 if numel(stringOutput)==lengthGoal && all(tmpInputs==compareInputs(1:2*(i+1)))
-                    % If a good swap is found, log the two inputs that are swapped
-                    swapString = [swapString;tmpTreeOutputs(n);allOutputs(m,:)];
-                    d = tmpDict;
-                    flag = 0;
-                    break
+                    previousFlag = 1;
+                    for p=0:i
+                        [pStringOutput,~,pInputs] = logicGateOrigin(d(sprintf('z%02d',p)),tmpDict,'',"", "");
+                        pInputs = sort(pInputs(2:end));
+                        pInputsX = pInputs(1:end/2);
+                        pInputsY = pInputs(end/2+1:end);
+        
+                        numInputs = numel(pInputsX);
+        
+                        tmpInputs = strings(2*numInputs,1);
+                        for k=1:numInputs
+                            tmpInputs(2*k-1) = pInputsX(k);
+                            tmpInputs(2*k)   = pInputsY(k);
+                        end
+
+                        if numel(pStringOutput)~=lengthGoal || ~all(tmpInputs==compareInputs(1:2*(p+1)))
+                            previousFlag = 0;
+                            break
+                        end
+                    end
+
+                    if previousFlag==1
+                        % If a good swap is found, log the two inputs that are swapped
+                        swapString = [swapString;tmpTreeOutputs(n);allOutputs(m,:)];
+                        disp(swapString)
+                        d = tmpDict;
+                        flag = 0;
+                        break
+                    end
                 end
             end
         end
