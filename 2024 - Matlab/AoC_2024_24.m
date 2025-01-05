@@ -18,8 +18,9 @@ line = fgetl(fileID);
 
 d = dictionary;
 
-allOutputs = [];
+allOutputs = strings(222,1);
 i = 1;
+ind = 1;
 
 while isempty(line) || all(line~=-1)
     if i<lineIndex
@@ -28,7 +29,8 @@ while isempty(line) || all(line~=-1)
     elseif i>lineIndex
         tmp = strsplit(line);
         d(string(tmp{end})) = {{tmp{1}, tmp{2}, tmp{3}}};
-        allOutputs = [allOutputs; tmp{end}];
+        allOutputs(ind) = tmp{end};
+        ind = ind+1;
     end
 
     i = i+1;
@@ -55,120 +57,91 @@ toc
 
 %% Solve part II
 
-tic
-swapString = [];
+swapList = "";
+swapCount = 1;
 
-compareInputs = ["x00";"y00"];
-for i=1:zMax
-    compareInputs = [compareInputs;sprintf('x%02d',i);sprintf('y%02d',i)];
-end
+goalInputsX = strings(zMax+1,1);
+goalInputsY = strings(zMax+1,1);
 
 for i=0:zMax
-    if numel(swapString)==8
-        break
+    goalInputsX(i+1) = sprintf('x%02d',i);
+    goalInputsY(i+1) = sprintf('y%02d',i);
+end
+
+% For every value of zXX (z00, z01, etc.)
+for i=0:zMax
+    zName = sprintf('z%02d',i);
+
+    [inputs,outputs,~] = outputOrigins(d(zName),d,"","",999,0);
+    inputs = sort(inputs);
+
+    inputGoalLength = 2*(i+1);
+    goalInputs = [goalInputsX(1:i+1);goalInputsY(1:i+1)];
+
+    % Check if it's ok (check all the xXX and yXX inputs, see if they are all
+    % there and the right amount)
+    if numel(inputs)==inputGoalLength && all(goalInputs==inputs)
+        continue
     end
-    % For every z-value (z00, z01 etc.)
+
+    swapFlag = 0;
+
+    for n=1:size(outputs,1)
+        if swapFlag==1
+            break
+        end
+        swapGatesN = d(outputs(n));
+
+        for m=1:size(allOutputs,1)
+            swapGatesM = d(allOutputs(m));
+
+            % If not, swap one of the outputs related to zXX with another output
+            dSwap = d;
+            dSwap(outputs(n)) = swapGatesM;
+            dSwap(allOutputs(m)) = swapGatesN;
+            
+            % Check if now the inputs are ok, for zXX and all the smaller zXX
+            swapBool = 1;
     
-    % Find the complete logic tree
-    [tmp,treeOutputs,~] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"", "");
-
-    % Check if it is the right length
-    lengthGoal = 3 + 4*i;
-
-    % If not, start swapping inputs (only the ones that are part of this
-    % logic tree) until it is the right length   
-    flag = 1;
-
-    if numel(tmp)~=lengthGoal
-        for n=1:numel(treeOutputs)
-            tmp1 = d(treeOutputs(n));
-
-            if flag==0 
-                break
-            end
-            for m=1:size(allOutputs,1)
-
-                tmpDict = d;
-
-                % Swap two inputs
-                tmp2 = tmpDict(allOutputs(m,:));
-
-                tmpDict(treeOutputs(n)) = tmp2;
-                tmpDict(allOutputs(m,:)) = tmp1;
-
-                % Find new complete logic tree
-                [stringOutput,tmpTreeOutputs,tmpInputsAll] = logicGateOrigin(d(sprintf('z%02d',i)),tmpDict,'',"","");
+            for j=0:i
+                zNameSwap = sprintf('z%02d',j);
                 
-                tmpInputsAll = sort(tmpInputsAll(2:end));
-                tmpInputsX = tmpInputsAll(1:end/2);
-                tmpInputsY = tmpInputsAll(end/2+1:end);
+                tmpGoalLength = 2*(j+1);
+                tmpGoalInputs = [goalInputsX(1:j+1);goalInputsY(1:j+1)];
 
-                numInputs = numel(tmpInputsX);
-
-                tmpInputs = strings(2*numInputs,1);
-                for k=1:numInputs
-                    tmpInputs(2*k-1) = tmpInputsX(k);
-                    tmpInputs(2*k)   = tmpInputsY(k);
+                try
+                    [inputsSwap,~,~] = outputOrigins(dSwap(zNameSwap),dSwap,"","",tmpGoalLength,0);
+                    inputsSwap = sort(inputsSwap);
+                catch
+                    disp('test')
                 end
 
-                % Check length
-                if numel(stringOutput)==lengthGoal && all(tmpInputs==compareInputs(1:2*(i+1)))
-                    previousFlag = 1;
-                    for p=0:i
-                        [pStringOutput,~,pInputs] = logicGateOrigin(d(sprintf('z%02d',p)),tmpDict,'',"", "");
-                        pInputs = sort(pInputs(2:end));
-                        pInputsX = pInputs(1:end/2);
-                        pInputsY = pInputs(end/2+1:end);
-        
-                        numInputs = numel(pInputsX);
-        
-                        tmpInputs = strings(2*numInputs,1);
-                        for k=1:numInputs
-                            tmpInputs(2*k-1) = pInputsX(k);
-                            tmpInputs(2*k)   = pInputsY(k);
-                        end
-
-                        if numel(pStringOutput)~=lengthGoal || ~all(tmpInputs==compareInputs(1:2*(p+1)))
-                            previousFlag = 0;
-                            break
-                        end
-                    end
-
-                    if previousFlag==1
-                        % If a good swap is found, log the two inputs that are swapped
-                        swapString = [swapString;tmpTreeOutputs(n);allOutputs(m,:)];
-                        disp(swapString)
-                        d = tmpDict;
-                        flag = 0;
-                        break
-                    end
+                if numel(inputsSwap)~=tmpGoalLength || ~all(tmpGoalInputs==inputsSwap)
+                    swapBool = 0;
+                    break
                 end
+            end
+            
+            % If inputs are all ok, log the switch, and update the dictionary
+            if swapBool
+                disp('Swap!')
+                swapList(2*swapCount-1) = outputs(n);
+                swapList(2*swapCount)   = allOutputs(m);
+                swapCount = swapCount+1;
+                d = dSwap;
+                swapFlag = 1;
+                break
             end
         end
     end
 
-    %% Possible pitfalls/improvements
-    % Now it is assumed that there is only one swap for every z-value. If
-    % after going through all the swaps no valid solution is found, two
-    % swaps might be tried.
+    if swapCount==4
+        break
+    end    
 end
 
-result2 = join(sort(swapString),',');
+result2 = join(sort(swapList),',');
 
 %% Display results of part II
 fprintf('%s.\n', result2);
 toc
-
-for i=0:zMax
-    % Find the complete logic tree
-    [tmp,treeOutputs,~] = logicGateOrigin(d(sprintf('z%02d',i)),d,'',"","");
-
-    cells{i+1} = tmp;
-
-    % Check if it is the right length
-    lengthGoal = 3 + 4*i;
-
-    if numel(tmp)~=lengthGoal
-        disp(i)
-    end
-end
