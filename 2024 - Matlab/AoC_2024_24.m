@@ -60,27 +60,35 @@ toc
 swapList = "";
 swapCount = 1;
 
-goalInputsX = strings(zMax+1,1);
-goalInputsY = strings(zMax+1,1);
+goalInputsX = "x00";
+goalInputsY = "y00";
 
-for i=0:zMax
-    goalInputsX(i+1) = sprintf('x%02d',i);
-    goalInputsY(i+1) = sprintf('y%02d',i);
+for i=1:zMax
+    goalInputsX = [goalInputsX;sprintf('x%02d',i);sprintf('x%02d',i)];
+    goalInputsY = [goalInputsY;sprintf('y%02d',i);sprintf('y%02d',i)];
 end
 
+correctOutputs = ["z00";"z01"];
+
 % For every value of zXX (z00, z01, etc.)
-for i=0:zMax
+for i=2:zMax
     zName = sprintf('z%02d',i);
 
     [inputs,outputs,~] = outputOrigins(d(zName),d,"","",999,0);
     inputs = sort(inputs);
+    if isempty(outputs)
+        outputs = string(zName);
+    else
+        outputs = [outputs;string(zName)];
+    end
 
-    inputGoalLength = 2*(i+1);
-    goalInputs = [goalInputsX(1:i+1);goalInputsY(1:i+1)];
+    inputGoalLength = 4*i;
+    goalInputs = [goalInputsX(1:2*i);goalInputsY(1:2*i)];
 
     % Check if it's ok (check all the xXX and yXX inputs, see if they are all
     % there and the right amount)
     if numel(inputs)==inputGoalLength && all(goalInputs==inputs)
+        correctOutputs = [correctOutputs;outputs(1:6);string(zName)];
         continue
     end
 
@@ -92,8 +100,16 @@ for i=0:zMax
         end
         swapGatesN = d(outputs(n));
 
+        if contains(correctOutputs,outputs(n))
+            continue
+        end
+
         for m=1:size(allOutputs,1)
             swapGatesM = d(allOutputs(m));
+
+            if contains(correctOutputs,allOutputs(m))
+                continue
+            end
 
             % If not, swap one of the outputs related to zXX with another output
             dSwap = d;
@@ -101,41 +117,24 @@ for i=0:zMax
             dSwap(allOutputs(m)) = swapGatesN;
             
             % Check if now the inputs are ok, for zXX and all the smaller zXX
-            swapBool = 1;
-    
-            for j=0:i
-                zNameSwap = sprintf('z%02d',j);
-                
-                tmpGoalLength = 2*(j+1);
-                tmpGoalInputs = [goalInputsX(1:j+1);goalInputsY(1:j+1)];
-
-                try
-                    [inputsSwap,~,~] = outputOrigins(dSwap(zNameSwap),dSwap,"","",tmpGoalLength,0);
-                    inputsSwap = sort(inputsSwap);
-                catch
-                    disp('test')
-                end
-
-                if numel(inputsSwap)~=tmpGoalLength || ~all(tmpGoalInputs==inputsSwap)
-                    swapBool = 0;
-                    break
-                end
-            end
+            [inputsSwap,outputsSwap,~] = outputOrigins(dSwap(zName),dSwap,"","",inputGoalLength,0);
+            inputsSwap = sort(inputsSwap);
             
             % If inputs are all ok, log the switch, and update the dictionary
-            if swapBool
+            if numel(inputsSwap)==inputGoalLength && all(goalInputs==inputsSwap)
                 disp('Swap!')
                 swapList(2*swapCount-1) = outputs(n);
-                swapList(2*swapCount)   = allOutputs(m);
+                swapList(2*swapCount) = allOutputs(m);
                 swapCount = swapCount+1;
                 d = dSwap;
                 swapFlag = 1;
-                break
+                correctOutputs = [correctOutputs;outputsSwap(1:6);string(zName);outputs(n);allOutputs(m)];
+                % break
             end
         end
     end
 
-    if swapCount==4
+    if swapCount==5
         break
     end    
 end
