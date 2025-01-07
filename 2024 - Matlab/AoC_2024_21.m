@@ -1,4 +1,5 @@
 %% Preamble
+clear all
 adventDay = 21;
 testBool = 0;
 
@@ -36,9 +37,10 @@ complexity = 0;
 numRobots = 2;
 for n=1:numel(importCodes)
     code = importCodes{n};
+    code = '029A';
 
     for i=1:numel(code)
-        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
+        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end 
     end
 
     presses = buttonPresses(codeArray,numDict);
@@ -58,44 +60,67 @@ toc
 
 %% Solve part II
 
+% Initialize keypads
+numPad = string([-1,-1,-1,-1,-1;
+    -1,7,8,9,-1;
+    -1,4,5,6,-1;
+    -1,1,2,3,-1;
+    -1,-1,0,"A",-1;
+    -1,-1,-1,-1,-1]);
+dirPad = string([-1,-1,-1,-1,-1;
+    -1,-1,"^","A",-1;
+    -1,"<","v",">",-1;
+    -1,-1,-1,-1,-1]);
+
+% Find how to get from one place to another in the fastest way for both the
+% numeric keypad and the directional keypad
+numDictString = buttonPressesInitString(numPad);
+dirDictString = buttonPressesInitString(dirPad);
+
 tic
 
 complexity = 0;
 numRobots = 3;
 
 for n=1:numel(importCodes)
-    code = ['A',importCodes{n}];
+    code = char(['A',importCodes{n}]);
+    code = '029A';
 
-    for i=1:numel(code)
-        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
+    pressesString = buttonPressesString(code,numDictString);
+
+    % Divide into groups of movement between subsequent A presses. E.g.
+    % >>A - ^A - A - >A - A - >A - <A
+    AIndices = [0,find(pressesString=='A')];
+    numGroups = numel(AIndices)-1;
+    groupArray = strings(1,numGroups);
+
+    for i=1:numGroups
+        groupArray(i) = join(pressesString(AIndices(i)+1:AIndices(i+1)),"");
     end
 
-    presses = [100,buttonPresses(codeArray,numDict)];
-    
-    % Go from individual presses to movement between two subsequent presses
-    tmpPresses = ones(2,numel(presses)-1);
-    for i=1:numel(presses)-1
-        start = presses(i);
-        goal  = presses(i+1);
+    % For every unique group of movements, go one level (robot) deeper, and
+    % see what presses are needed there. Keep track of the count.
+    newGroupArray = strings(size(groupArray));
+    newGroupArraySplit = [];
 
-        tmpPresses(1,i) = 10*start+goal;
-    end
+    for i=1:numel(groupArray)
+        newGroupArray(i) = buttonPressesString(char(groupArray(i)),dirDictString);
+        
+        tmp = buttonPressesString(char(groupArray(i)),dirDictString);
+        AIndices = [0,find(tmp=='A')];
+        numGroups = numel(AIndices)-1;
 
-    % Count unique instances of movements
-    for i=length(tmpPresses):-1:1
-        idxs = find(tmpPresses(1,:)==tmpPresses(1,i));
-        tmpPresses(2,idxs(1)) = tmpPresses(2,idxs(1)) + numel(idxs)-1;
-        if numel(idxs)>1
-            tmpPresses(:,idxs(end)) = [];
+        for j=1:numGroups
+            newGroupArraySplit = [newGroupArraySplit, string(join(tmp(AIndices(j)+1:AIndices(j+1)),""))];
         end
     end
 
-    presses = tmpPresses;
+    [a,b] = findgroups(newGroupArraySplit);
+    countArray = histcounts(a);
 
-    presses = buttonPressesFast(presses,dirDict);
 
 
-    for i=1:numRobots
+    for j=1:numRobots
         presses = buttonPresses(presses,dirDict);
     end
        
