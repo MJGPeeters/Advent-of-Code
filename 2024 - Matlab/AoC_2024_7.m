@@ -3,10 +3,10 @@ adventDay = 7;
 testBool = 0;
 
 if testBool
-    fileName = "Test_2024_" + adventDay + ".txt";
+    fileName = "Tests/Test_2024_" + adventDay + ".txt";
     numCalibrations = 9;
 else
-    fileName = "Input_2024_" + adventDay + ".txt"; 
+    fileName = "Inputs/Input_2024_" + adventDay + ".txt"; 
     numCalibrations = 850;
 end
 
@@ -27,49 +27,49 @@ end
 
 fclose(fileID);
 
-% %% Solve part I
-% tic 
-% 
-% result1 = 0;
-% outcomeArray = zeros(numCalibrations,1);
-% 
-% for i=1:numCalibrations
-%     testValue = dataCell{i,1};
-%     numbers = dataCell{i,2};
-% 
-%     numOptions = 2^(numel(numbers)-1);
-%     numOperators = ceil(log2(numOptions));
-%     
-%     for j=0:numOptions-1
-%         equationResult = testValue;
-% 
-%         for k=numOperators:-1:1
-%             tmp = bitand(j,2^(k-1));
-%             
-%             if tmp>0 && mod(equationResult,numbers(k+1))==0
-%                 equationResult = equationResult/numbers(k+1);
-%             elseif tmp==0 
-%                 equationResult = equationResult-numbers(k+1);
-%             else
-%                 break
-%             end
-%         end
-% 
-%         if equationResult==numbers(1)
-%             result1 = result1 + testValue;
-%             outcomeArray(i) = 1;
-%             break
-%         end
-%     end
-% end
-% 
-% time1 = toc;
-% 
-% %% Display results of part I
-% out1 = sprintf('The total calibration result is %d.', result1);
-% tim1 = sprintf('Calculation took %f seconds.', time1);
-% disp(out1)
-% disp(tim1)
+%% Solve part I
+tic 
+
+result1 = 0;
+outcomeArray = zeros(numCalibrations,1);
+
+for i=1:numCalibrations
+    testValue = dataCell{i,1};
+    numbers = dataCell{i,2};
+
+    numOptions = 2^(numel(numbers)-1);
+    numOperators = ceil(log2(numOptions));
+
+    for j=0:numOptions-1
+        equationResult = testValue;
+
+        for k=numOperators:-1:1
+            tmp = bitand(j,2^(k-1));
+
+            if tmp>0 && mod(equationResult,numbers(k+1))==0
+                equationResult = equationResult/numbers(k+1);
+            elseif tmp==0 
+                equationResult = equationResult-numbers(k+1);
+            else
+                break
+            end
+        end
+
+        if equationResult==numbers(1)
+            result1 = result1 + testValue;
+            outcomeArray(i) = 1;
+            break
+        end
+    end
+end
+
+time1 = toc;
+
+%% Display results of part I
+out1 = sprintf('The total calibration result is %d.', result1);
+tim1 = sprintf('Calculation took %f seconds.', time1);
+disp(out1)
+disp(tim1)
 
 %% Solve part II
 tic 
