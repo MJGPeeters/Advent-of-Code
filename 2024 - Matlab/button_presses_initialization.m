@@ -1,4 +1,4 @@
-function dict = buttonPressesInitString(array)
+function dict = button_presses_initialization(array)
 
 dict = dictionary;
 

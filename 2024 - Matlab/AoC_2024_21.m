@@ -1,5 +1,4 @@
 %% Preamble
-clear all
 adventDay = 21;
 testBool = 0;
 
@@ -12,53 +11,7 @@ end
 %% Read data
 importCodes = importdata(fileName);
 
-% %% Solve part I
-% 
-% tic
-% 
-% % Initialize keypads
-% numPad = [-1,-1,-1,-1,-1;
-%     -1,7,8,9,-1;
-%     -1,4,5,6,-1;
-%     -1,1,2,3,-1;
-%     -1,-1,0,100,-1;
-%     -1,-1,-1,-1,-1];
-% dirPad = [-1,-1,-1,-1,-1;
-%     -1,-1,8,100,-1;
-%     -1,4,2,6,-1;
-%     -1,-1,-1,-1,-1];
-% 
-% % Find how to get from one place to another in the fastest way for both the
-% % numeric keypad and the directional keypad
-% numDict = buttonPressesInit(numPad);
-% dirDict = buttonPressesInit(dirPad);
-% 
-% complexity = 0;
-% numRobots = 2;
-% 
-% for n=1:numel(importCodes)
-%     code = importCodes{n};
-% 
-%     for i=1:numel(code)
-%         if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end 
-%     end
-% 
-%     presses = buttonPresses(codeArray,numDict);
-% 
-%     for i=1:numRobots
-%         presses = buttonPresses(presses,dirDict);
-%     end
-% 
-%     complexity = complexity + length(presses)*double(string(code(1:end-1)));
-% end
-% 
-% result1 = complexity;
-% 
-% %% Display results of part I
-% fprintf('The sum of the complexities is %d.\n', result1);
-% toc
-
-%% Solve part II
+%% Solve part I
 
 % Initialize keypads
 numPad = string([-1,-1,-1,-1,-1;
@@ -72,23 +25,23 @@ dirPad = string([-1,-1,-1,-1,-1;
     -1,"<","v",">",-1;
     -1,-1,-1,-1,-1]);
 
-% Find how to get from one place to another in the fastest way for both the
-% numeric keypad and the directional keypad
-numDictString = buttonPressesInitString(numPad);
-dirDictString = buttonPressesInitString(dirPad);
-
 tic
 
-complexity = 0;
-numRobots = 2;
+% Find how to get from one place to another in the fastest way for both the
+% numeric keypad and the directional keypad
+numDict = button_presses_initialization(numPad);
+dirDict = button_presses_initialization(dirPad);
 
+numRobots = 2;
+complexity = 0;
+    
 for n=1:numel(importCodes)
     code = string(importCodes{n});
 
-    [presses,counts] = buttonPressesString(code,1,numDictString);
+    [presses,counts] = button_presses(code,1,numDict);
 
     for i=1:numRobots
-        [presses,counts] = buttonPressesString(presses,counts,dirDictString);
+        [presses,counts] = button_presses(presses,counts,dirDict);
     end
 
     numPresses = strlength(presses)*counts;
@@ -97,8 +50,57 @@ for n=1:numel(importCodes)
     complexity = complexity + numPresses*double(string(code(1:end-1)));
 end
 
-result2 = complexity;
+result1 = complexity;
 
-%% Display results of part II
-fprintf('Now, the sum of the complexities is %d.\n', result2);
+%% Display results of part I
+fprintf('The sum of the complexities is %d.\n', result1);
+toc
+
+%% Solve part II
+
+tic
+
+minComplexity = 10^15;
+numRobots = 25;
+
+for d=0:15
+    tmpDirDict = dirDict;
+    k = ["vA","Av","^>",">^"];
+    p = [">^A","^>A";
+        "v<A","<vA";
+        ">vA","v>A";
+        "^<A","<^A"];
+
+    num = dec2bin(d,4);
+
+    for j=1:4
+        tmpDirDict(k(j)) = p(j,double(string(num(j)))+1);
+    end
+
+    complexity = 0;
+
+    for n=1:numel(importCodes)
+        code = string(importCodes{n});
+
+        [presses,counts] = button_presses(code,1,numDict);
+
+        for i=1:numRobots
+            [presses,counts] = button_presses(presses,counts,tmpDirDict);
+        end
+
+        numPresses = strlength(presses)*counts;
+        code = char(code);
+
+        complexity = complexity + numPresses*double(string(code(1:end-1)));
+    end
+
+    if complexity<=minComplexity
+        minComplexity = complexity;
+    end
+end
+
+result2 = minComplexity;
+
+%% Display results of part I
+fprintf('The sum of the complexities is %d.\n', result2);
 toc

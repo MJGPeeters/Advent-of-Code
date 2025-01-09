@@ -1,4 +1,4 @@
-function [pressStringOut,countArrayOut] = buttonPressesString(code,codeCount,dict)
+function [pressStringOut,countArrayOut] = button_presses(code,codeCount,dict)
 
 pressString = strings(1,numel(code));
 pressCount = zeros(1,numel(code));
