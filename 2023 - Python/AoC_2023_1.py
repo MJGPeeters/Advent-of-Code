@@ -7,7 +7,6 @@ sum1 = 0
 sum2 = 0
 
 numLongList  = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-numLongListRev = ['eno', 'owt', 'eerht', 'ruof', 'evif', 'xis', 'neves', 'thgie', 'enin']
 numShortList = ['1','2','3','4','5','6','7','8','9']
 
 for fileLine in fileLines:
@@ -24,14 +23,16 @@ for fileLine in fileLines:
     minValue = []
     maxValue = []
 
-    for numShort, numLong, numLongRev in zip(numShortList, numLongList, numLongListRev):
+    a = [fileLine.find(numShort) for numShort in numShortList if fileLine.find(numShort)<minIdx]
+    minValue = [numShort if ]
+    for numShort, numLong in zip(numShortList, numLongList):
         fileLineRev = fileLine[::-1]
 
         shortNumIdxFirst = fileLine.find(numShort)
         shortNumIdxLast = fileLineRev.find(numShort)
 
         longNumIdxFirst = fileLine.find(numLong)
-        longNumIdxLast = fileLineRev.find(numLongRev)
+        longNumIdxLast = fileLineRev.find(numLong[::-1])
 
         if shortNumIdxFirst != -1 and shortNumIdxFirst<minIdx:
             minIdx = shortNumIdxFirst
