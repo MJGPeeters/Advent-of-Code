@@ -1,32 +1,55 @@
-with open("Tests/Test_2023_1.txt", "r") as file:
+with open("Input/Input_2023_1.txt", "r") as file:
     fileContent = file.read()
 
 fileLines = fileContent.splitlines()
-
-tmp1 = []
-tmp2 = []
 
 sum1 = 0
 sum2 = 0
 
 numLongList  = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+numLongListRev = ['eno', 'owt', 'eerht', 'ruof', 'evif', 'xis', 'neves', 'thgie', 'enin']
 numShortList = ['1','2','3','4','5','6','7','8','9']
 
 for fileLine in fileLines:
-    tmp1 = [character for character in fileLine if character.isdigit()]
-    sum1 += int(tmp1[0] + tmp1[-1])
+    # Part I
+    numList = [character for character in fileLine if character.isdigit()]
 
-    tmp2 = [character for character in fileLine if character in numShortList or character in numLongList]
+    if numList:
+        sum1 += int(numList[0] + numList[-1])
 
-    # for index, dummy in enumerate(fileLine):
-    #     tmp2 = [numShortList[index] for numLongList[index] in fileLine]
-    
-    # print(tmp2)
+    # Part II
+    minIdx = len(fileLine)
+    maxIdx = len(fileLine)
 
+    minValue = []
+    maxValue = []
 
+    for numShort, numLong, numLongRev in zip(numShortList, numLongList, numLongListRev):
+        fileLineRev = fileLine[::-1]
 
+        shortNumIdxFirst = fileLine.find(numShort)
+        shortNumIdxLast = fileLineRev.find(numShort)
 
+        longNumIdxFirst = fileLine.find(numLong)
+        longNumIdxLast = fileLineRev.find(numLongRev)
 
+        if shortNumIdxFirst != -1 and shortNumIdxFirst<minIdx:
+            minIdx = shortNumIdxFirst
+            minValue = numShort
+
+        if shortNumIdxLast != -1 and shortNumIdxLast<maxIdx:
+            maxIdx = shortNumIdxLast
+            maxValue = numShort
+
+        if longNumIdxFirst != -1 and longNumIdxFirst<minIdx:
+            minIdx = longNumIdxFirst
+            minValue = numShortList[numLongList.index(numLong)]
+
+        if longNumIdxLast != -1 and longNumIdxLast<maxIdx:
+            maxIdx = longNumIdxLast
+            maxValue = numShortList[numLongList.index(numLong)]
+
+    sum2 += int(minValue + maxValue)
 
 print(sum1)
 print(sum2)
