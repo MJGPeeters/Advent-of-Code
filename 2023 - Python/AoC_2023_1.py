@@ -1,10 +1,7 @@
-with open("Tests/Test_2023_1.txt", "r") as file:
+with open("Input/Input_2023_1.txt", "r") as file:
     fileContent = file.read()
 
 fileLines = fileContent.splitlines()
-
-tmp1 = []
-tmp2 = []
 
 sum1 = 0
 sum2 = 0
@@ -16,7 +13,17 @@ for fileLine in fileLines:
     tmp1 = [character for character in fileLine if character.isdigit()]
     sum1 += int(tmp1[0] + tmp1[-1])
 
-    tmp2 = [character for character in fileLine if character in numShortList or character in numLongList]
+    idx = []
+
+    for numLong in numLongList:
+        idx = [idx, fileLine.find(numLong)]
+
+
+
+
+    tmp = fileLine.find(numLongList)
+
+    # tmp2 = [character for character in fileLine if character in numShortList or character in numLongList]
 
     # for index, dummy in enumerate(fileLine):
     #     tmp2 = [numShortList[index] for numLongList[index] in fileLine]
