@@ -1,3 +1,7 @@
+from timeit import default_timer as timer
+
+startTime = timer()
+
 with open("Input/Input_2023_1.txt", "r") as file:
     fileContent = file.read()
 
@@ -50,5 +54,8 @@ for fileLine in fileLines:
 
     sum2 += int(minValue + maxValue)
 
+endTime = timer()
+
 print(sum1)
 print(sum2)
+print('Time elapsed: {:.3f} s'.format(endTime - startTime))
