@@ -2,7 +2,7 @@ from timeit import default_timer as timer
 
 startTime = timer()
 
-with open("Input/Input_2023_1.txt", "r") as file:
+with open("Inputs/Input_2023_1.txt", "r") as file:
     fileContent = file.read()
 
 fileLines = fileContent.splitlines()
