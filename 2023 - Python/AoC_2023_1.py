@@ -23,8 +23,6 @@ for fileLine in fileLines:
     minValue = []
     maxValue = []
 
-    a = [fileLine.find(numShort) for numShort in numShortList if fileLine.find(numShort)<minIdx]
-    minValue = [numShort if ]
     for numShort, numLong in zip(numShortList, numLongList):
         fileLineRev = fileLine[::-1]
 
