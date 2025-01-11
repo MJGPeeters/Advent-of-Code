@@ -1,11 +1,11 @@
-function dict = buttonPressesInit(array)
+function dict = button_presses_initialization(array)
 
 dict = dictionary;
 
 for startIndex=1:numel(array)
     for goalIndex=1:numel(array)
         % Check if either start or end is not a valid entry
-        if array(startIndex)==-1 || array(goalIndex)==-1
+        if array(startIndex)=="-1" || array(goalIndex)=="-1"
             continue
         end
         
@@ -17,9 +17,9 @@ for startIndex=1:numel(array)
         dc = cg - cs;
 
         if dr>0
-            rowDir = 2;
+            rowDir = "v";
         else
-            rowDir = 8;
+            rowDir = "^";
         end
 
         % Find best path. If goal column is higher than (or the same as)
@@ -28,26 +28,26 @@ for startIndex=1:numel(array)
 
         % If the numDict is used, use this priority
         if numel(array)>25
-            if dc<=0 && array(rs,cs+dc)~=-1
-                route = [repmat(4,[1,abs(dc)]), repmat(rowDir,[1,abs(dr)])];
+            if dc<=0 && array(rs,cs+dc)~="-1"
+                route = join([repmat("<",[1,abs(dc)]),repmat(rowDir,[1,abs(dr)]),"A"],"");
             elseif dc<=0
-                route = [repmat(rowDir,[1,abs(dr)]), repmat(4,[1,abs(dc)])];
-            elseif array(rs+dr,cs)~=-1
-                route = [repmat(rowDir,[1,abs(dr)]), repmat(6,[1,abs(dc)])];
+                route = join([repmat(rowDir,[1,abs(dr)]),repmat("<",[1,abs(dc)]),"A"],"");
+            elseif array(rs+dr,cs)~="-1"
+                route = join([repmat(rowDir,[1,abs(dr)]),repmat(">",[1,abs(dc)]),"A"],"");
             else
-                route = [repmat(6,[1,abs(dc)]), repmat(rowDir,[1,abs(dr)])];
+                route = join([repmat(">",[1,abs(dc)]),repmat(rowDir,[1,abs(dr)]),"A"],"");
             end
         % Else use the other priority
         else
             if dc>=0
-                route = [repmat(6,[1,abs(dc)]), repmat(rowDir,[1,abs(dr)])];
+                route = join([repmat(">",[1,abs(dc)]),repmat(rowDir,[1,abs(dr)]),"A"],"");
             else
-                route = [repmat(rowDir,[1,abs(dr)]), repmat(4,[1,abs(dc)])];
+                route = join([repmat(rowDir,[1,abs(dr)]),repmat("<",[1,abs(dc)]),"A"],"");
             end
         end
         
         % Store route in dictionary
-        dict(10*array(startIndex)+array(goalIndex)) = {route};
+        dict(string(array(startIndex))+string(array(goalIndex))) = route;
     end
 end
 

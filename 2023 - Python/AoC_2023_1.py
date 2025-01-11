@@ -10,30 +10,47 @@ numLongList  = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 
 numShortList = ['1','2','3','4','5','6','7','8','9']
 
 for fileLine in fileLines:
-    tmp1 = [character for character in fileLine if character.isdigit()]
-    sum1 += int(tmp1[0] + tmp1[-1])
+    # Part I
+    numList = [character for character in fileLine if character.isdigit()]
 
-    idx = []
+    if numList:
+        sum1 += int(numList[0] + numList[-1])
 
-    for numLong in numLongList:
-        idx = [idx, fileLine.find(numLong)]
+    # Part II
+    minIdx = len(fileLine)
+    maxIdx = len(fileLine)
 
+    minValue = []
+    maxValue = []
 
+    a = [fileLine.find(numShort) for numShort in numShortList if fileLine.find(numShort)<minIdx]
+    minValue = [numShort if ]
+    for numShort, numLong in zip(numShortList, numLongList):
+        fileLineRev = fileLine[::-1]
 
+        shortNumIdxFirst = fileLine.find(numShort)
+        shortNumIdxLast = fileLineRev.find(numShort)
 
-    tmp = fileLine.find(numLongList)
+        longNumIdxFirst = fileLine.find(numLong)
+        longNumIdxLast = fileLineRev.find(numLong[::-1])
 
-    # tmp2 = [character for character in fileLine if character in numShortList or character in numLongList]
+        if shortNumIdxFirst != -1 and shortNumIdxFirst<minIdx:
+            minIdx = shortNumIdxFirst
+            minValue = numShort
 
-    # for index, dummy in enumerate(fileLine):
-    #     tmp2 = [numShortList[index] for numLongList[index] in fileLine]
-    
-    # print(tmp2)
+        if shortNumIdxLast != -1 and shortNumIdxLast<maxIdx:
+            maxIdx = shortNumIdxLast
+            maxValue = numShort
 
+        if longNumIdxFirst != -1 and longNumIdxFirst<minIdx:
+            minIdx = longNumIdxFirst
+            minValue = numShortList[numLongList.index(numLong)]
 
+        if longNumIdxLast != -1 and longNumIdxLast<maxIdx:
+            maxIdx = longNumIdxLast
+            maxValue = numShortList[numLongList.index(numLong)]
 
-
-
+    sum2 += int(minValue + maxValue)
 
 print(sum1)
 print(sum2)

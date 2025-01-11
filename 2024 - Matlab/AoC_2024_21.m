@@ -13,41 +13,41 @@ importCodes = importdata(fileName);
 
 %% Solve part I
 
-tic
-
 % Initialize keypads
-numPad = [-1,-1,-1,-1,-1;
+numPad = string([-1,-1,-1,-1,-1;
     -1,7,8,9,-1;
     -1,4,5,6,-1;
     -1,1,2,3,-1;
-    -1,-1,0,100,-1;
-    -1,-1,-1,-1,-1];
-dirPad = [-1,-1,-1,-1,-1;
-    -1,-1,8,100,-1;
-    -1,4,2,6,-1;
-    -1,-1,-1,-1,-1];
+    -1,-1,0,"A",-1;
+    -1,-1,-1,-1,-1]);
+dirPad = string([-1,-1,-1,-1,-1;
+    -1,-1,"^","A",-1;
+    -1,"<","v",">",-1;
+    -1,-1,-1,-1,-1]);
+
+tic
 
 % Find how to get from one place to another in the fastest way for both the
 % numeric keypad and the directional keypad
-numDict = buttonPressesInit(numPad);
-dirDict = buttonPressesInit(dirPad);
+numDict = button_presses_initialization(numPad);
+dirDict = button_presses_initialization(dirPad);
 
-complexity = 0;
 numRobots = 2;
+complexity = 0;
+    
 for n=1:numel(importCodes)
-    code = importCodes{n};
+    code = string(importCodes{n});
 
-    for i=1:numel(code)
-        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
-    end
-
-    presses = buttonPresses(codeArray,numDict);
+    [presses,counts] = button_presses(code,1,numDict);
 
     for i=1:numRobots
-        presses = buttonPresses(presses,dirDict);
+        [presses,counts] = button_presses(presses,counts,dirDict);
     end
-       
-    complexity = complexity + length(presses)*double(string(code(1:end-1)));
+
+    numPresses = strlength(presses)*counts;
+    code = char(code);
+
+    complexity = complexity + numPresses*double(string(code(1:end-1)));
 end
 
 result1 = complexity;
@@ -60,50 +60,47 @@ toc
 
 tic
 
-complexity = 0;
-numRobots = 3;
+minComplexity = 10^15;
+numRobots = 25;
 
-for n=1:numel(importCodes)
-    code = ['A',importCodes{n}];
+for d=0:15
+    tmpDirDict = dirDict;
+    k = ["vA","Av","^>",">^"];
+    p = [">^A","^>A";
+        "v<A","<vA";
+        ">vA","v>A";
+        "^<A","<^A"];
 
-    for i=1:numel(code)
-        if code(i)=='A' codeArray(i) = 100; else codeArray(i) = double(string(code(i))); end %#ok<SEPEX>
+    num = dec2bin(d,4);
+
+    for j=1:4
+        tmpDirDict(k(j)) = p(j,double(string(num(j)))+1);
     end
 
-    presses = [100,buttonPresses(codeArray,numDict)];
-    
-    % Go from individual presses to movement between two subsequent presses
-    tmpPresses = ones(2,numel(presses)-1);
-    for i=1:numel(presses)-1
-        start = presses(i);
-        goal  = presses(i+1);
+    complexity = 0;
 
-        tmpPresses(1,i) = 10*start+goal;
-    end
+    for n=1:numel(importCodes)
+        code = string(importCodes{n});
 
-    % Count unique instances of movements
-    for i=length(tmpPresses):-1:1
-        idxs = find(tmpPresses(1,:)==tmpPresses(1,i));
-        tmpPresses(2,idxs(1)) = tmpPresses(2,idxs(1)) + numel(idxs)-1;
-        if numel(idxs)>1
-            tmpPresses(:,idxs(end)) = [];
+        [presses,counts] = button_presses(code,1,numDict);
+
+        for i=1:numRobots
+            [presses,counts] = button_presses(presses,counts,tmpDirDict);
         end
+
+        numPresses = strlength(presses)*counts;
+        code = char(code);
+
+        complexity = complexity + numPresses*double(string(code(1:end-1)));
     end
 
-    presses = tmpPresses;
-
-    presses = buttonPressesFast(presses,dirDict);
-
-
-    for i=1:numRobots
-        presses = buttonPresses(presses,dirDict);
+    if complexity<=minComplexity
+        minComplexity = complexity;
     end
-       
-    complexity = complexity + sum(presses(2,:))*double(string(code(1:end-1)));
 end
 
-result2 = complexity;
+result2 = minComplexity;
 
-%% Display results of part II
-fprintf('Now, the sum of the complexities is %d.\n', result2);
+%% Display results of part I
+fprintf('The sum of the complexities is %d.\n', result2);
 toc
