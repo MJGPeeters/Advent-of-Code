@@ -1,49 +1,49 @@
 from timeit import default_timer as timer
+import re
 
 startTime1 = timer()
 
 testName = 'Tests/Test_2023_3.txt'
 inputName = 'Inputs/Input_2023_3.txt'
 
-with open(testName, "r") as file:
+with open(inputName, "r") as file:
     fileContent = file.read()
 
 fileLines = fileContent.splitlines()
 
-# Generate array as list of lists
-array = [line for line in fileLines]
-
-# Add padding?
-
+# Generate array (with padding) as list of lists
+array = ['.' + line + '.' for line in fileLines]
+array.insert(0, '.'*len(array[0]))
+array.insert(len(array), '.'*len(array[0]))
 
 sum1 = 0
 
 for lineNumber, line in enumerate(array):
-    numbers = [el for el in line.split('.') if el.isdigit()]
+    numbers = {el for el in re.split('[^0-9]', line) if el.isdigit()}
+
+    tmp = 0
 
     for number in numbers:
-        idxStart = line.find(number)
-        idxEnd = idxStart + len(number)
+        idxs = [m.span() for m in re.finditer(number, line)]
 
-        # For every number that is found, check if there is a symbol (non-digit and not a period)
-        region = [row[idxStart-1:idxEnd+1] for row in array[lineNumber-1:lineNumber+2]]
-        
-        numBool = [x for x in region if not x.isdigit() and not x=='.']
+        for idxStart, idxEnd in idxs:
+            if not line[idxStart-1].isdigit() and not line[idxEnd].isdigit():
+                region = [row[idxStart-1:idxEnd+1] for row in array[lineNumber-1:lineNumber+2]]
+                numCheck = [x for line in region for x in line if not x.isdigit() and not x=='.']
 
-        # If so, add number to total
-        if numBool:
-            sum1 += int(number)
+                if numCheck:
+                    sum1 += int(number)
 
 endTime1 = timer()
 
 print(sum1)
 print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
-# Part II
+# # Part II
 
-startTime2 = timer()
+# startTime2 = timer()
 
-endTime2 = timer()
+# endTime2 = timer()
 
-print(sum2)
-print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
+# print(sum2)
+# print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
