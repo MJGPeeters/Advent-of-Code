@@ -34,25 +34,11 @@ print(numWays)
 print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
 # Part II
-
 startTime2 = timer()
 
-races = []
-
-for line in fileLines:
-    tmp = []
-    sLine = line.split()
-    for i in range(1, len(sLine)):
-        tmp += sLine[i]
-    races.append(tmp)
-
-time = 46828479
-distance = 347152214061471
-
-minTime = m.floor((time - m.sqrt(time**2 - 4*distance))/2) + 1
-numTimes = time + 1 - 2*minTime
+time, distance = 46828479, 347152214061471
+print(time + 1 - 2*(m.floor((time - m.sqrt(time**2 - 4*distance))/2) + 1))
 
 endTime2 = timer()
 
-print(numTimes)
 print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
