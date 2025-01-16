@@ -46,8 +46,7 @@ for line in fileLines:
 
 handTypes = [HC, OP, TP, ThOAK, FH, FoOAK, FiOAK]
 
-baseRank = 1
-winnings = 0
+baseRank, winnings = 1, 0
 
 for handType in handTypes:
     sortedHands = sorted(handType)
@@ -64,7 +63,6 @@ startTime2 = timer()
 
 sum2 = 0
 
-# Every hand with at least one J in it has to be checked
 FiOAK, FoOAK, FH, ThOAK, TP, OP, HC = [], [], [], [], [], [], []
 
 for line in fileLines:
@@ -122,8 +120,7 @@ for line in fileLines:
 
 handTypes = [HC, OP, TP, ThOAK, FH, FoOAK, FiOAK]
 
-baseRank = 1
-winnings = 0
+baseRank, winnings = 1, 0
 
 for handType in handTypes:
     sortedHands = sorted(handType)
