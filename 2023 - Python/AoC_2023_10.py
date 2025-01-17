@@ -1,5 +1,67 @@
 from timeit import default_timer as timer
 
+def flood_fill(point, array, fillValue='O'):
+    """
+    Fill the whole area enclosed by the borders in array, with point in it
+
+    Inputs:
+    point - tuple with grid coordinates (row, column)
+    array - list of lists with 'X' borders, anything else not borders [['X', '.', ...], ...]
+    *fillValue='O' - char to be used for filling area
+
+    Outputs:
+    filledArray - list of lists with 'X' as borders, fillValue as filled area
+
+    Notes:
+    Does not work properly if area is bordered by array edge
+    """
+
+    neighbors = ((0, 1), (0, -1), (1, 0), (-1, 0))
+
+    # Includes all points in the area, for which neighbors are not yet checked
+    pointSet = {point: None}
+
+    # If point is not on a border, set it to fillValue. If it is on a border, return
+    if array[point[0]][point[1]]!='X':
+        array[point[0]][point[1]] = fillValue
+    else:
+        return array
+
+    # Continue with loop until pointSet is empty (all neighbors are checked)
+    while pointSet:
+        # Select last element from pointSet (DFS), delete it from pointSet
+        tmpPoint = list(pointSet.keys())[-1]
+        del pointSet[tmpPoint]
+
+        # Check all four neighbors, if they are not 'X' or fillValue set to fillValue, update pointSet
+        for diff in neighbors:
+            checkPoint = tmpPoint[0] + diff[0], tmpPoint[1] + diff[1]
+            if array[checkPoint[0]][checkPoint[1]]!='X' and array[checkPoint[0]][checkPoint[1]]!=fillValue:
+                array[checkPoint[0]][checkPoint[1]] = fillValue
+                pointSet[checkPoint] = None
+    
+    return array
+
+def clockwise_check(inDirection, outDirection):
+    """
+    Check whether a turn is clockwise or counterclockwise
+
+    Inputs:
+    inDirection - tuple describing incoming direction (drow, dcolumn)
+    outDirection - tuple describing outgoing direction (drow, dcolumn)
+
+    Outputs:
+    1 if clockwise, -1 if counterclockwise
+    """
+
+    CW = 1
+    CCW = -1
+
+    if inDirection[0]==0:
+        return CCW if (inDirection[1] + outDirection[0])==0 else CW 
+    else:
+        return CW if (inDirection[0] + outDirection[1])==0 else CCW 
+
 startTime1 = timer()
 
 testName = 'Tests/Test_2023_10.txt'
@@ -35,93 +97,78 @@ for lineNumber, line in enumerate(fileLines):
     pipeArray.append([pipe for pipe in line])
     areaArray.append(['.' for pipe in line])
     if 'S' in line:
-        startPosition = lineNumber, line.index('S')
+        startPos = lineNumber, line.index('S')
 
 # Find total length of the loop
-difference = 0, 1
-pipePosition = [x for x in map(sum, zip(startPosition, difference))]
-pipe = pipeArray[pipePosition[0]][pipePosition[1]]
-areaArray[pipePosition[0]][pipePosition[1]] = 'X'
+diff = 0, 1
 pathLength = 1
+clockwiseCheck = 0
+pathList = []
+
+pipePos = [x for x in map(sum, zip(startPos, diff))]
+pipe = pipeArray[pipePos[0]][pipePos[1]]
+areaArray[pipePos[0]][pipePos[1]] = 'X'
 
 while pipe!='S':
-    difference = pipeDict[(pipe, difference[0], difference[1])]
-    pipePosition = [pipePosition[0] + difference[0], pipePosition[1] + difference[1]]
-    pipe = pipeArray[pipePosition[0]][pipePosition[1]]
-    areaArray[pipePosition[0]][pipePosition[1]] = 'X'
-    pathLength += 1
+    newDiff = pipeDict[(pipe, diff[0], diff[1])]
+    if pipe in 'LFJ7':
+        clockwiseCheck += clockwise_check(diff, newDiff)
+    
+    pathList.append([newDiff, diff, pipePos, pipe])
 
+    pipePos = [pipePos[0] + newDiff[0], pipePos[1] + newDiff[1]]
+    pipe = pipeArray[pipePos[0]][pipePos[1]]
+    areaArray[pipePos[0]][pipePos[1]] = 'X'
+
+    
+
+    diff = newDiff
+    pathLength += 1
+    
 endTime1 = timer()
 
 print(int(pathLength/2))
 print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
 # Part II
-
 startTime2 = timer()
 
-numCards = [1]*len(fileLines)
 sum2 = 0
+diff = 0, 1
 
-# Change the map, so that every part of the loop is 'X' and every other part is '.'
-# Done!
+for direction, prevDirection, pos, pipe in pathList:
+    CWcheck = clockwise_check(prevDirection, direction)
 
-# Check whether left or right side is in the loop, when starting to the right from 'S'
+    if pipe=='|':
+        checkTiles = [(pos[0], pos[1] + direction[0])]
+    elif pipe=='-':
+        checkTiles = [(pos[0] - direction[0], pos[1])]
+    elif pipe=='J' and CWcheck==1:
+        checkTiles = [(pos[0] + 1, pos[1]), (pos[0], pos[1] + 1)]
+    elif pipe=='F' and CWcheck==1:
+        checkTiles = [(pos[0] - 1, pos[1]), (pos[0], pos[1] - 1)]
+    elif pipe=='7' and CWcheck==1:
+        checkTiles = [(pos[0] - 1, pos[1]), (pos[0], pos[1] + 1)]
+    elif pipe=='L' and CWcheck==1:
+        checkTiles = [(pos[0] + 1, pos[1]), (pos[0], pos[1] - 1)]
+    
+    for checkTile in checkTiles:
+        areaArray = flood_fill(checkTile, areaArray)
 
-# For every step through the loop, check the tile on your right
-# Tiles to check, assuming we move CW:
-# When moving up (down), check tile to the right (left)
-# When moving right (left), check tile below (above)
-# When taking a right corner, nothing to check
+# For every step through the loop, check the tile on your left
+# Tiles to check, assuming we move CCW:
+# When moving up (down), check tile to the left (right)
+# When moving right (left), check tile above (below)
+# When taking a left corner, nothing to check
 # When taking a left corner, check tile in front of you and to the right (from where you came from)
-
 
 # If that area is not included yet (so not filled with 'O'), flood fill the area
 # Fill whole area with 'O', keeping track of area, adding that to running tally
-def flood_fill(point, array, fillValue='O'):
-    """
-    Fill the whole area enclosed by the borders in array, with point in it
-
-    Inputs:
-    point - tuple with grid coordinates (row, column)
-    array - list of lists with 'X' borders, anything else not borders [['X', '.', ...], ...]
-    *fillValue='O' - char to be used for filling area
-
-    Outputs:
-    filledArray - list of lists with 'X' as borders, fillValue as filled area
-
-    Notes:
-    Does not work properly if area is bordered by array edge
-    """
-
-    neighbors = ((0, 1), (0, -1), (1, 0), (-1, 0))
-
-    # Includes all points in the area, for which neighbors are not yet checked
-    pointSet = {point: None}
-
-    # If point is not on a border, set it to fillValue
-    if array[point[0]][point[1]]!='X':
-        array[point[0]][point[1]] = fillValue
-
-    # Continue with loop until pointSet is empty (all neighbors are checked)
-    while pointSet:
-        # Select last element from pointSet (DFS), delete it from pointSet
-        tmpPoint = list(pointSet.keys())[-1]
-        del pointSet[tmpPoint]
-
-        # Check all four neighbors, if they are not 'X' set to fillValue, update pointSet
-        for diff in neighbors:
-            checkPoint = tmpPoint[0] + diff[0], tmpPoint[1] + diff[1]
-            if array[checkPoint[0]][checkPoint[1]]!='X':
-                array[checkPoint[0]][checkPoint[1]] = fillValue
-                pointSet[checkPoint] = None
-    
-    return array
 
 # Determine total number of enclosed tiles
-# sum2 = 0
-# for row in areaArray:
-#     sum2 += row.count('O')
+sum2 = 0
+for row in areaArray:
+    sum2 += row.count('O')
 
 endTime2 = timer()
 
