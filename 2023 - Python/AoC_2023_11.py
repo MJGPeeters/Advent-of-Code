@@ -36,7 +36,7 @@ print(ans1)
 print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
 # Part II
-
+startTime2 = timer()
 
 # For every galaxy, add number of empty rows, columns smaller than coordinate to coordinates
 galaxies = []
@@ -45,7 +45,6 @@ for row in oldGalaxies:
     for r, c in row:
         padding = sum([10**6-1 for x in emptyCols if x<c])
         galaxies.append((r, c + padding))
-startTime2 = timer()
 
 # For every pair of galaxies, compute Manhattan distance, add to ans1
 ans2 = sum([abs(g1[0] - g2[0]) + abs(g1[1] - g2[1]) for i, g1 in enumerate(galaxies) for g2 in galaxies[i:]])
