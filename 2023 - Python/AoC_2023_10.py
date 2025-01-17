@@ -115,13 +115,9 @@ while pipe!='S':
         clockwiseCheck += clockwise_check(diff, newDiff)
     
     pathList.append([newDiff, diff, pipePos, pipe])
-
     pipePos = [pipePos[0] + newDiff[0], pipePos[1] + newDiff[1]]
     pipe = pipeArray[pipePos[0]][pipePos[1]]
     areaArray[pipePos[0]][pipePos[1]] = 'X'
-
-    
-
     diff = newDiff
     pathLength += 1
     
@@ -151,22 +147,10 @@ for direction, prevDirection, pos, pipe in pathList:
         checkTiles = [(pos[0] - 1, pos[1]), (pos[0], pos[1] + 1)]
     elif pipe=='L' and CWcheck==1:
         checkTiles = [(pos[0] + 1, pos[1]), (pos[0], pos[1] - 1)]
-    
+
     for checkTile in checkTiles:
         areaArray = flood_fill(checkTile, areaArray)
 
-# For every step through the loop, check the tile on your left
-# Tiles to check, assuming we move CCW:
-# When moving up (down), check tile to the left (right)
-# When moving right (left), check tile above (below)
-# When taking a left corner, nothing to check
-# When taking a left corner, check tile in front of you and to the right (from where you came from)
-
-# If that area is not included yet (so not filled with 'O'), flood fill the area
-# Fill whole area with 'O', keeping track of area, adding that to running tally
-
-# Determine total number of enclosed tiles
-sum2 = 0
 for row in areaArray:
     sum2 += row.count('O')
 
