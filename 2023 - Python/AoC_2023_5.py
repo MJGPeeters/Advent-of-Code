@@ -33,7 +33,7 @@ def range_to_new_ranges(plan, range):
             rangeStart = rangeEnd
 
     # Apply rules to sourceRanges
-    newRanges = [(dest_pos(x, plan), dest_pos(y, plan)) for x, y in sourceRanges]
+    newRanges = [(dest_pos(x, plan), dest_pos(y-1, plan)+1) for x, y in sourceRanges]
 
     return newRanges
 
@@ -60,7 +60,7 @@ def dest_pos(sourcePos, plan):
 # Part I
 startTime1 = timer()
 
-testName = 'Tests/Test_2023_5.txt'
+testName = 'Tests/Test_2023_5_MP.txt'
 inputName = 'Inputs/Input_2023_5.txt'
 
 with open(inputName, "r") as file:
@@ -106,10 +106,6 @@ print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
 # Part II
 startTime2 = timer()
-
-# Destination ranges and source range
-scopes = [5, 14, 23, 31]
-range = (12, 26)
 
 sourceRanges = seedRanges
 
