@@ -25,5 +25,7 @@ print('Time elapsed: {:.6f} s'.format(endTime1 - startTime1))
 
 
 
+# endTime2 = timer()
+
 # print(ans2)
 # print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
