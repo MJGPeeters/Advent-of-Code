@@ -45,16 +45,43 @@ startTime2 = timer()
 
 ans2 = 0
 
-def tilt_platform(platform, direction):
+def tilt_cycle_platform(platform):
     """
-    Determine location of 'O' after tilting platform in a certain direction
+    Determine location of 'O' after tilting platform for one cycle
 
     Inputs:
-    platform - np.array with '.' as empty space, '#' as stationary stones, 'O' as rolling stones
-    direction - Integer: 0, 1, 2, 3 corresponds to north, east, south, west
+    platform - List of lists with '.' empty space, '#' stationary stones, 'O' rolling stones
+
+    Notes:
+    On first go stones roll to the right, make sure platform is input correctly
     """
 
-    
+    numTilts = 0
+
+    while numTilts<4:
+        # ROTATE PLATFORM
+        platform = list(zip(*platform))
+
+        # Go through the platform row by row, move everything to the right
+        for row in platform:
+            load = 0
+            roundStones = 0
+            startIndex = len(row)
+
+            for i, thing in enumerate(row):
+                if thing=='O':
+                    roundStones += 1
+                elif thing=='#':
+                    # MOVE STONES
+                    startIndex = len(row) - i - 1
+                    roundStones = 0
+            
+            # MOVE STONES
+        
+
+
+        numTilts += 1
+
 
 print(ans2)
 print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
