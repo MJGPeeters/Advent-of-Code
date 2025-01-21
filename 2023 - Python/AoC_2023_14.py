@@ -118,7 +118,6 @@ for i in range(num_cycles):
 
     load_list.append(load_calculation(rock_platform))
 
-
 check_length = 10
 break_flag = 0
 
