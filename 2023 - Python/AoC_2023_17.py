@@ -3,7 +3,6 @@ from collections import deque
 import itertools
 import heapq as hp
 import math as m
-from pathfinding import manhattan_distance
 
 startTime1 = timer()
 
@@ -13,7 +12,7 @@ INPUT_NAME = 'Inputs/Input_2023_17.txt'
 with open(TEST_NAME, "r") as file:
     file_lines = file.read().splitlines()
 
-def pathfinding_crucible(map_array, start, initial_direction, goal, h):
+def pathfinding_crucible(map_array, start, initial_direction, goal):
     """
     Find the shortest path from start to goal for a given mapArray
     """
@@ -76,7 +75,7 @@ for line in file_lines:
     heat_loss_map.append([int(v) for v in line])
     path_map.append(['.' for v in line])
 
-path, heat_loss = pathfinding_crucible(heat_loss_map, (0,0), (-1, 0), (map_size, map_size), manhattan_distance)
+path, heat_loss = pathfinding_crucible(heat_loss_map, (0,0), (-1, 0), (map_size, map_size))
 
 for r, c in path:
     path_map[r][c] = 'X'
