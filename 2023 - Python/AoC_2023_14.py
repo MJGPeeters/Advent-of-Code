@@ -82,6 +82,7 @@ def tilt_cycle_platform(platform):
 
         numTilts += 1
 
+endTime2 = timer()
 
 print(ans2)
 print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
