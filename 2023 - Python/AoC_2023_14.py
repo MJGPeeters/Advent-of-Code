@@ -1,5 +1,87 @@
 from timeit import default_timer as timer
 
+def tilt_platform_north(platform):
+    """
+    Determine location of 'O' after tilting platform north
+    """
+
+    PLATFORM_SIZE = len(platform)
+
+    for i_col in range(PLATFORM_SIZE):
+        i_empty = 0
+
+        for i_row in range(PLATFORM_SIZE):
+            thing = platform[i_row][i_col]
+            if thing=='O':
+                platform[i_row][i_col] = '.'
+                platform[i_empty][i_col] = 'O'
+                i_empty += 1
+            elif thing=='#':
+                i_empty = i_row + 1
+
+    return platform
+
+def tilt_platform_south(platform):
+    """
+    Determine location of 'O' after tilting platform south
+    """
+
+    PLATFORM_SIZE = len(platform)
+
+    for i_col in range(PLATFORM_SIZE):
+        i_empty = PLATFORM_SIZE - 1
+
+        for i_row in reversed(range(PLATFORM_SIZE)):
+            thing = platform[i_row][i_col]
+            if thing=='O':
+                platform[i_row][i_col] = '.'
+                platform[i_empty][i_col] = 'O'
+                i_empty -= 1
+            elif thing=='#':
+                i_empty = i_row - 1
+
+    return platform
+
+def tilt_platform_west(platform):
+    """
+    Determine location of 'O' after tilting platform west
+    """
+
+    for i_row, row in enumerate(platform):
+        i_empty = 0
+
+        for i_col, thing in enumerate(row):
+            if thing=='O':
+                platform[i_row][i_col] = '.'
+                platform[i_row][i_empty] = 'O'
+                i_empty += 1
+            elif thing=='#':
+                i_empty = i_col + 1
+
+    return platform
+
+def tilt_platform_east(platform):
+    """
+    Determine location of 'O' after tilting platform east and calculate load on north beams
+    """
+
+    PLATFORM_SIZE = len(platform)
+    load = 0
+
+    for i_row, row in enumerate(platform):
+        i_empty = PLATFORM_SIZE - 1
+
+        for i_col, thing in reversed(list(enumerate(row))):
+            if thing=='O':
+                platform[i_row][i_col] = '.'
+                platform[i_row][i_empty] = 'O'
+                i_empty -= 1
+                load += PLATFORM_SIZE - i_row
+            elif thing=='#':
+                i_empty = i_col - 1
+
+    return platform, load
+
 start_time_1 = timer()
 
 TEST_NAME = 'Tests/Test_2023_14.txt'
@@ -39,65 +121,30 @@ print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
 startTime2 = timer()
 
-def tilt_cycle_platform(platform):
-    """
-    Determine location of 'O' after tilting platform north
-    """
+previous_platforms, previous_loads = {}, []
+cycle_num = 0
 
-    for col_num, col in enumerate(platform.T):
-        round_stones = 0
-        start_index = 0
+while True:
+    platform = tilt_platform_north(platform)
+    platform = tilt_platform_west(platform)
+    platform = tilt_platform_south(platform)
+    platform, load = tilt_platform_east(platform)
 
-        for i, thing in enumerate(col):
-            if thing=='O':
-                round_stones += 1
-            elif thing=='#':
-                # MOVE STONES
-                platform[start_index:start_index + round_stones, col_num] = 'O'
-                platform[start_index + round_stones:i, col_num] = '.'
-                start_index = i + 1
-                round_stones = 0
+    platform_tuple = tuple(tuple(row) for row in platform)
 
-        platform[start_index:start_index + round_stones, col_num] = 'O'
-        platform[start_index + round_stones:len(col), col_num] = '.'
-
-    return platform
-
-rock_platform = platform
-
-num_cycles = 130
-load_list = []
-
-for i in range(num_cycles):
-    rock_platform_new = np.array(rock_platform)
-
-    rock_platform_new = np.rot90(rock_platform_new, k=1)
-    rock_platform_new = tilt_cycle_platform(rock_platform_new)
-    rock_platform_new = np.rot90(rock_platform_new, k=1, axes=(1, 0))
-
-    rock_platform = np.array(rock_platform_new)
-
-    load_list.append(load_calculation(rock_platform))
-
-check_length = 10
-break_flag = 0
-
-for start_idx in range(num_cycles):
-    test_pattern = load_list[start_idx:start_idx+check_length]
-
-    for idx in range(start_idx + 1, num_cycles):
-        if load_list[idx]==test_pattern[0] and load_list[idx:idx+check_length]==test_pattern:
-            loop_starts = [start_idx, idx]
-            break_flag = 1
-            break
-    if break_flag:
+    if platform_tuple in previous_platforms:
+        prev_cycle_num = previous_platforms[platform_tuple]
         break
 
-cycle_length = loop_starts[1] - loop_starts[0]
-offset = loop_starts[0] % cycle_length
-cycle_index = (10**9 - offset) % cycle_length + loop_starts[0] - 1
+    previous_platforms[platform_tuple] = cycle_num
+    previous_loads.append(load)
+    cycle_num += 1
 
-ans2 = load_list[cycle_index]
+cycle_length = cycle_num - prev_cycle_num
+offset = prev_cycle_num % cycle_length
+cycle_index = (10**9 - offset) % cycle_length + prev_cycle_num - 1
+
+ans2 = previous_loads[cycle_index]
 
 endTime2 = timer()
 
