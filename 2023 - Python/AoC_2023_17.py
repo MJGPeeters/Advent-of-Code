@@ -4,67 +4,80 @@ import itertools
 import heapq as hp
 import math as m
 
-startTime1 = timer()
+start_time_1 = timer()
 
 TEST_NAME = 'Tests/Test_2023_17.txt'
 INPUT_NAME = 'Inputs/Input_2023_17.txt'
 
-with open(TEST_NAME, "r") as file:
+with open(TEST_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
-def pathfinding_crucible(map_array, start, initial_direction, goal):
+def pathfinding_crucible(map_array, start, goal):
     """
     Find the shortest path from start to goal for a given mapArray
     """
 
     map_limit = len(map_array) - 1
 
-    g_score = [[m.inf for element in row] for row in map_array]
-    g_score[start[0]][start[1]] = 0
+    g_score = {(0,0,0,0): 0}
 
     open_set = []
-    hp.heappush(open_set, (g_score[start[0]][start[1]], (start, initial_direction)))
+
+    for direction, num_steps in itertools.product(((1, 0), (0, 1)), range(1,4)):
+        next_node = tuple(n + d*num_steps for n, d in zip(start, direction))
+        i_steps = tuple((start[0] + direction[0]*s, start[1] + direction[1]*s) for s in range(1, num_steps+1))
+        tmp_g_score = sum((map_array[i_row][i_col] for i_row, i_col in i_steps))
+        g_score[(next_node[0], next_node[1], start[0], start[1])] = tmp_g_score
+        hp.heappush(open_set, (tmp_g_score, (next_node, start)))
 
     origin_dict = {}
 
     while open_set:
-        node, previous_direction = hp.heappop(open_set)[1]
+        node, previous_node = hp.heappop(open_set)[1]
 
         if node==goal:
-            return reconstruct_path_crucible(origin_dict, (node, previous_direction)), g_score[node[0]][node[1]]
+            return reconstruct_path_crucible(origin_dict, (node, previous_node)), g_score[(node[0], node[1], previous_node[0], previous_node[1])]
 
-        directions = ((previous_direction[1], previous_direction[0]), 
-                      (-previous_direction[1], -previous_direction[0]))
+        direction_in = tuple(new - old for new, old in zip(node, previous_node))
+
+        directions = ((direction_in[1], direction_in[0]), (-direction_in[1], -direction_in[0]))
 
         for direction, num_steps in itertools.product(directions, range(1,4)):
-            tst_node = tuple(n + d*num_steps for n, d in zip(node, direction))
+            new_node = tuple(n + d*num_steps for n, d in zip(node, direction))
 
-            if not (0<=tst_node[0]<=map_limit and 0<=tst_node[1]<=map_limit):
+            if not (0<=new_node[0]<=map_limit and 0<=new_node[1]<=map_limit):
                 continue
 
             i_steps = tuple((node[0] + direction[0]*s, node[1] + direction[1]*s) for s in range(1, num_steps + 1))
-            tmp_g_score = g_score[node[0]][node[1]] + sum((map_array[i_row][i_col] for i_row, i_col in i_steps))
+            tmp_g_score = g_score[(node[0], node[1], previous_node[0], previous_node[1])] + sum(
+                                            (map_array[i_row][i_col] for i_row, i_col in i_steps))
 
-            if tmp_g_score<g_score[tst_node[0]][tst_node[1]]:
-                origin_dict[(tst_node, direction)] = (node, previous_direction)
-                g_score[tst_node[0]][tst_node[1]] = tmp_g_score
+            if (new_node[0], new_node[1], node[0], node[1]) not in g_score:
+                origin_dict[(new_node, node)] = (node, previous_node)
+                g_score[(new_node[0], new_node[1], node[0], node[1])] = tmp_g_score
 
                 # if tst_node not in open_set:
-                hp.heappush(open_set, (g_score[tst_node[0]][tst_node[1]], (tst_node, direction)))
+                hp.heappush(open_set, (g_score[(new_node[0], new_node[1], node[0], node[1])], (new_node, node)))
+            elif  tmp_g_score<g_score[(new_node[0], new_node[1], node[0], node[1])]:
+                origin_dict[(new_node, node)] = (node, previous_node)
+                g_score[(new_node[0], new_node[1], node[0], node[1])] = tmp_g_score
+
+                # if tst_node not in open_set:
+                hp.heappush(open_set, (g_score[(new_node[0], new_node[1], node[0], node[1])], (new_node, node)))
 
     return None
 
-def reconstruct_path_crucible(dictionary, node):
+def reconstruct_path_crucible(dictionary, nodes):
     """
     Return the reconstructed path from your pathfinding algorithm
     """
 
     reconstructed_path = deque()
-    reconstructed_path.appendleft(node[0])
+    reconstructed_path.appendleft(nodes[0])
 
-    while node in dictionary:
-        node = dictionary[node]
-        reconstructed_path.appendleft(node[0])
+    while nodes in dictionary:
+        nodes = dictionary[nodes]
+        reconstructed_path.appendleft(nodes[0])
 
     return reconstructed_path
 
@@ -75,7 +88,7 @@ for line in file_lines:
     heat_loss_map.append([int(v) for v in line])
     path_map.append(['.' for v in line])
 
-path, heat_loss = pathfinding_crucible(heat_loss_map, (0,0), (-1, 0), (map_size, map_size))
+path, heat_loss = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size))
 
 for r, c in path:
     path_map[r][c] = 'X'
@@ -94,7 +107,7 @@ for r, c in path:
 endTime1 = timer()
 
 print(heat_loss)
-print(f'Time elapsed: {endTime1 - startTime1:.6f} s')
+print(f'Time elapsed: {endTime1 - start_time_1:.6f} s')
 
 # # Part II
 
