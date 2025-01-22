@@ -12,18 +12,20 @@ INPUT_NAME = 'Inputs/Input_2023_17.txt'
 with open(INPUT_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
-def pathfinding_crucible(map_array, start, goal):
+def pathfinding_crucible(map_array, start, goal, min_steps, max_steps):
     """
     Find the shortest path from start to goal for a given mapArray
     """
 
     MAP_LIMIT = len(map_array) - 1
+    MIN_RANGE = min_steps
+    MAX_RANGE = max_steps + 1
 
     g_score = {(0,0,0,0): 0}
 
     open_set = []
 
-    for direction, num_steps in itertools.product(((1, 0), (0, 1)), range(1,4)):
+    for direction, num_steps in itertools.product(((1, 0), (0, 1)), range(MIN_RANGE, MAX_RANGE)):
         next_node = tuple(n + d*num_steps for n, d in zip(start, direction))
         i_steps = tuple((start[0] + direction[0]*s, start[1] + direction[1]*s) for s in range(1, num_steps+1))
         tmp_g_score = sum((map_array[i_row][i_col] for i_row, i_col in i_steps))
@@ -42,7 +44,7 @@ def pathfinding_crucible(map_array, start, goal):
 
         directions = ((direction_in[1], direction_in[0]), (-direction_in[1], -direction_in[0]))
 
-        for direction, num_steps in itertools.product(directions, range(1,4)):
+        for direction, num_steps in itertools.product(directions, range(MIN_RANGE, MAX_RANGE)):
             new_node = tuple(n + d*num_steps for n, d in zip(node, direction))
 
             if not (0<=new_node[0]<=MAP_LIMIT and 0<=new_node[1]<=MAP_LIMIT):
@@ -88,9 +90,9 @@ for line in file_lines:
     heat_loss_map.append([int(v) for v in line])
     path_map.append(['.' for v in line])
 
-path, heat_loss = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size))
+path_1, heat_loss_1 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 1, 3)
 
-for r, c in path:
+for r, c in path_1:
     path_map[r][c] = 'X'
 
 # Option 1: Take into account previous steps in pathfinding algorithm (a given node is not just
@@ -106,18 +108,19 @@ for r, c in path:
 
 endTime1 = timer()
 
-print(heat_loss)
+print(heat_loss_1)
 print(f'Time elapsed: {endTime1 - start_time_1:.6f} s')
 
-# # Part II
+# Part II
 
-# startTime2 = timer()
+start_time_2 = timer()
 
-# ans2 = 0
+path_2, heat_loss_2 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 4, 10)
 
+for r, c in path_2:
+    path_map[r][c] = 'X'
 
+end_time_2 = timer()
 
-# endTime2 = timer()
-
-# print(ans2)
-# print('Time elapsed: {:.6f} s'.format(endTime2 - startTime2))
+print(heat_loss_2)
+print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
