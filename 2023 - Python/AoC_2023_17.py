@@ -9,7 +9,7 @@ start_time_1 = timer()
 TEST_NAME = 'Tests/Test_2023_17.txt'
 INPUT_NAME = 'Inputs/Input_2023_17.txt'
 
-with open(TEST_NAME, encoding='utf-8') as file:
+with open(INPUT_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
 def pathfinding_crucible(map_array, start, goal):
@@ -17,7 +17,7 @@ def pathfinding_crucible(map_array, start, goal):
     Find the shortest path from start to goal for a given mapArray
     """
 
-    map_limit = len(map_array) - 1
+    MAP_LIMIT = len(map_array) - 1
 
     g_score = {(0,0,0,0): 0}
 
@@ -38,14 +38,14 @@ def pathfinding_crucible(map_array, start, goal):
         if node==goal:
             return reconstruct_path_crucible(origin_dict, (node, previous_node)), g_score[(node[0], node[1], previous_node[0], previous_node[1])]
 
-        direction_in = tuple(new - old for new, old in zip(node, previous_node))
+        direction_in = tuple(int((new-old)/abs(new-old)) if new-old!=0 else 0 for new, old in zip(node, previous_node))
 
         directions = ((direction_in[1], direction_in[0]), (-direction_in[1], -direction_in[0]))
 
         for direction, num_steps in itertools.product(directions, range(1,4)):
             new_node = tuple(n + d*num_steps for n, d in zip(node, direction))
 
-            if not (0<=new_node[0]<=map_limit and 0<=new_node[1]<=map_limit):
+            if not (0<=new_node[0]<=MAP_LIMIT and 0<=new_node[1]<=MAP_LIMIT):
                 continue
 
             i_steps = tuple((node[0] + direction[0]*s, node[1] + direction[1]*s) for s in range(1, num_steps + 1))
