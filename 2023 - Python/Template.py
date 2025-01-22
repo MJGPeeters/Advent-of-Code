@@ -2,11 +2,11 @@ from timeit import default_timer as timer
 
 start_time_1 = timer()
 
-TEST_NAME = 'Tests/Test_2023_13.txt'
-INPUT_NAME = 'Inputs/Input_2023_13.txt'
+TEST_NAME = 'Tests/Test_2023_18.txt'
+INPUT_NAME = 'Inputs/Input_2023_18.txt'
 
 with open(TEST_NAME, encoding='utf-8') as file:
-    fileLines = file.read().splitlines()
+    file_lines = file.read().splitlines()
 
 ans1 = 0
 
