@@ -1,27 +1,6 @@
 from timeit import default_timer as timer
-import numpy as np
 
-def load_calculation(platform):
-    """
-    Calculate load on north support beams
-    """
-
-    total_load = 0
-
-    for col in platform.T:
-        load = 0
-        round_stones = 0
-        max_index = len(col)
-
-        for i, thing in enumerate(col):
-            if thing=='O':
-                load += max_index - i
-
-        total_load += load
-    
-    return total_load
-
-startTime1 = timer()
+start_time_1 = timer()
 
 TEST_NAME = 'Tests/Test_2023_14.txt'
 INPUT_NAME = 'Inputs/Input_2023_14.txt'
@@ -36,29 +15,25 @@ platform = []
 for line in file_lines:
     platform.append(list(line))
 
-platform = np.array(platform)
+PLATFORM_SIZE = len(platform)
 
-for col in platform.T:
-    load = 0
-    round_stones = 0
-    start_index = len(col)
+for i_col in range(PLATFORM_SIZE):
+    i_empty = 0
 
-    for i, thing in enumerate(col):
+    for i_row in range(PLATFORM_SIZE):
+        thing = platform[i_row][i_col]
         if thing=='O':
-            round_stones += 1
+            platform[i_row][i_col] = '.'
+            platform[i_empty][i_col] = 'O'
+            ans1 += PLATFORM_SIZE - i_empty
+            i_empty += 1
         elif thing=='#':
-            load += round_stones * (start_index - (round_stones - 1) / 2)
-            start_index = len(col) - i - 1
-            round_stones = 0
+            i_empty = i_row + 1
 
-    load += round_stones * (start_index - (round_stones - 1) / 2)
-
-    ans1 += load
-    
-endTime1 = timer()
+end_time_1 = timer()
 
 print(int(ans1))
-print(f'Time elapsed: {endTime1 - startTime1:.6f} s')
+print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
 # Part II
 
@@ -66,39 +41,25 @@ startTime2 = timer()
 
 def tilt_cycle_platform(platform):
     """
-    Determine location of 'O' after tilting platform for one cycle
-
-    Inputs:
-    platform - List of lists with '.' empty space, '#' stationary stones, 'O' rolling stones
-
-    Notes:
-    Make sure platform rotation in input  is correct
+    Determine location of 'O' after tilting platform north
     """
 
-    num_tilts = 0
+    for col_num, col in enumerate(platform.T):
+        round_stones = 0
+        start_index = 0
 
-    while num_tilts<4:
-        # Rotate platform
-        platform = np.rot90(platform, k=1, axes=(1, 0))
+        for i, thing in enumerate(col):
+            if thing=='O':
+                round_stones += 1
+            elif thing=='#':
+                # MOVE STONES
+                platform[start_index:start_index + round_stones, col_num] = 'O'
+                platform[start_index + round_stones:i, col_num] = '.'
+                start_index = i + 1
+                round_stones = 0
 
-        # Go through the platform column by column, move everything to the top
-        for col_num, col in enumerate(platform.T):
-            round_stones = 0
-            start_index = 0
-
-            for i, thing in enumerate(col):
-                if thing=='O':
-                    round_stones += 1
-                elif thing=='#':
-                    # MOVE STONES
-                    platform[start_index:start_index + round_stones, col_num] = 'O'
-                    platform[start_index + round_stones:i, col_num] = '.'
-                    start_index = i + 1
-                    round_stones = 0
-
-            platform[start_index:start_index + round_stones, col_num] = 'O'
-            platform[start_index + round_stones:len(col), col_num] = '.'
-        num_tilts += 1
+        platform[start_index:start_index + round_stones, col_num] = 'O'
+        platform[start_index + round_stones:len(col), col_num] = '.'
 
     return platform
 
