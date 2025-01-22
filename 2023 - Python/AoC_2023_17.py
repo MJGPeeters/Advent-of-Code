@@ -2,7 +2,6 @@ from timeit import default_timer as timer
 from collections import deque
 import itertools
 import heapq as hp
-import math as m
 
 start_time_1 = timer()
 
@@ -14,35 +13,28 @@ with open(INPUT_NAME, encoding='utf-8') as file:
 
 def pathfinding_crucible(map_array, start, goal, min_steps, max_steps):
     """
-    Find the shortest path from start to goal for a given mapArray
+    Find the heat loss for a crucible with given minimum and maximum succesive steps in a direction
     """
 
     MAP_LIMIT = len(map_array) - 1
-    MIN_RANGE = min_steps
-    MAX_RANGE = max_steps + 1
+    MIN_RANGE, MAX_RANGE = min_steps, max_steps + 1
 
-    g_score = {(0,0,0,0): 0}
-
-    open_set = []
+    g_score, origin_dict, open_set = {}, {}, []
 
     for direction, num_steps in itertools.product(((1, 0), (0, 1)), range(MIN_RANGE, MAX_RANGE)):
         next_node = tuple(n + d*num_steps for n, d in zip(start, direction))
         i_steps = tuple((start[0] + direction[0]*s, start[1] + direction[1]*s) for s in range(1, num_steps+1))
         tmp_g_score = sum((map_array[i_row][i_col] for i_row, i_col in i_steps))
-        g_score[(next_node[0], next_node[1], start[0], start[1])] = tmp_g_score
-        hp.heappush(open_set, (tmp_g_score, (next_node, start)))
-
-    origin_dict = {}
+        g_score[(next_node, direction)] = tmp_g_score
+        hp.heappush(open_set, (tmp_g_score, (next_node, direction)))
 
     while open_set:
-        node, previous_node = hp.heappop(open_set)[1]
+        node, prev_direction = hp.heappop(open_set)[1]
 
         if node==goal:
-            return reconstruct_path_crucible(origin_dict, (node, previous_node)), g_score[(node[0], node[1], previous_node[0], previous_node[1])]
+            return g_score[(node, prev_direction)]
 
-        direction_in = tuple(int((new-old)/abs(new-old)) if new-old!=0 else 0 for new, old in zip(node, previous_node))
-
-        directions = ((direction_in[1], direction_in[0]), (-direction_in[1], -direction_in[0]))
+        directions = ((prev_direction[1], prev_direction[0]), (-prev_direction[1], -prev_direction[0]))
 
         for direction, num_steps in itertools.product(directions, range(MIN_RANGE, MAX_RANGE)):
             new_node = tuple(n + d*num_steps for n, d in zip(node, direction))
@@ -51,37 +43,17 @@ def pathfinding_crucible(map_array, start, goal, min_steps, max_steps):
                 continue
 
             i_steps = tuple((node[0] + direction[0]*s, node[1] + direction[1]*s) for s in range(1, num_steps + 1))
-            tmp_g_score = g_score[(node[0], node[1], previous_node[0], previous_node[1])] + sum(
-                                            (map_array[i_row][i_col] for i_row, i_col in i_steps))
+            tmp_g_score = g_score[(node, prev_direction)] + sum(
+                                                    (map_array[i_row][i_col] for i_row, i_col in i_steps))
 
-            if (new_node[0], new_node[1], node[0], node[1]) not in g_score:
-                origin_dict[(new_node, node)] = (node, previous_node)
-                g_score[(new_node[0], new_node[1], node[0], node[1])] = tmp_g_score
-
-                # if tst_node not in open_set:
-                hp.heappush(open_set, (g_score[(new_node[0], new_node[1], node[0], node[1])], (new_node, node)))
-            elif  tmp_g_score<g_score[(new_node[0], new_node[1], node[0], node[1])]:
-                origin_dict[(new_node, node)] = (node, previous_node)
-                g_score[(new_node[0], new_node[1], node[0], node[1])] = tmp_g_score
-
-                # if tst_node not in open_set:
-                hp.heappush(open_set, (g_score[(new_node[0], new_node[1], node[0], node[1])], (new_node, node)))
-
-    return None
-
-def reconstruct_path_crucible(dictionary, nodes):
-    """
-    Return the reconstructed path from your pathfinding algorithm
-    """
-
-    reconstructed_path = deque()
-    reconstructed_path.appendleft(nodes[0])
-
-    while nodes in dictionary:
-        nodes = dictionary[nodes]
-        reconstructed_path.appendleft(nodes[0])
-
-    return reconstructed_path
+            if (new_node, direction) not in g_score:
+                origin_dict[(new_node, direction)] = (node, prev_direction)
+                g_score[(new_node, direction)] = tmp_g_score
+                hp.heappush(open_set, (g_score[(new_node, direction)], (new_node, direction)))
+            elif  tmp_g_score<g_score[(new_node, direction)]:
+                origin_dict[(new_node, direction)] = (node, prev_direction)
+                g_score[(new_node, direction)] = tmp_g_score
+                hp.heappush(open_set, (g_score[(new_node, direction)], (new_node, direction)))
 
 heat_loss_map, path_map = [], []
 map_size = len(file_lines) - 1
@@ -90,21 +62,7 @@ for line in file_lines:
     heat_loss_map.append([int(v) for v in line])
     path_map.append(['.' for v in line])
 
-path_1, heat_loss_1 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 1, 3)
-
-for r, c in path_1:
-    path_map[r][c] = 'X'
-
-# Option 1: Take into account previous steps in pathfinding algorithm (a given node is not just
-#           determined by its coordinates, but also by the previous three directions). This way,
-#           there can be multiple ways to arrive at a certain coordinate. If the test_node would
-#           result in four directions that are the same, the node is not admissable.
-
-# Option 2: For every node, you can only rotate left or right from your current direction, not go
-#           straight. Check one, two or three steps in that direction. For this the current
-#           direction needs to be saved as well.
-
-# Try option 2 first, seems the easiest to implement and maybe also faster.
+heat_loss_1 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 1, 3)
 
 endTime1 = timer()
 
@@ -115,10 +73,7 @@ print(f'Time elapsed: {endTime1 - start_time_1:.6f} s')
 
 start_time_2 = timer()
 
-path_2, heat_loss_2 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 4, 10)
-
-for r, c in path_2:
-    path_map[r][c] = 'X'
+heat_loss_2 = pathfinding_crucible(heat_loss_map, (0,0), (map_size, map_size), 4, 10)
 
 end_time_2 = timer()
 
