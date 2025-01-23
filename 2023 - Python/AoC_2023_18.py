@@ -1,5 +1,38 @@
 from timeit import default_timer as timer
 
+def flood_fill(point, filled_set):
+    """
+    Fill the whole area enclosed by the borders in array, with point in it
+
+    Inputs:
+    point - tuple with grid coordinates (row, column)
+    filled - set with squares as entries, anything else as not entries
+
+    Outputs:
+    set with filled squares as entries, anything else as not entries
+    """
+
+    neighbors = ((0, 1), (0, -1), (1, 0), (-1, 0))
+    row, col = point
+
+    # Includes all points in the area, for which neighbors are not yet checked
+    point_set = {point}
+
+    filled_set.add(point)
+
+    # Continue with loop until point_set is empty (all neighbors are checked)
+    while point_set:
+        tmp_row, tmp_col = point_set.pop()
+
+        # Check all four neighbors, add them to filled, update point_set
+        for row_diff, col_diff in neighbors:
+            check_point = tmp_row + row_diff, tmp_col + col_diff
+            if check_point not in filled_set:
+                filled_set.add(check_point)
+                point_set.add(check_point)
+    
+    return filled_set
+
 start_time_1 = timer()
 
 TEST_NAME = 'Tests/Test_2023_18.txt'
@@ -11,7 +44,7 @@ with open(INPUT_NAME, encoding='utf-8') as file:
 # layout_size = 500
 # layout = [['.' for _ in range(layout_size)] for _ in range(layout_size)]
 
-map_dict = {}
+filled = set()
 direction_dict = {
     'U': (-1, 0),
     'D': (+1, 0),
@@ -19,10 +52,10 @@ direction_dict = {
     'R': (0, -1)
 }
 
-row, col = 0, 0 #int(layout_size/2) + 180, int(layout_size/2)
+row, col = 0, 0
 
-min_row, max_row = 999, 0
-min_col, max_col = 999, 0
+min_row, max_row = 0, 0
+min_col, max_col = 0, 0
 
 for line in file_lines:
     direction, number, _ = line.split()
@@ -39,32 +72,13 @@ for line in file_lines:
 
     for i in range(number):
         row, col = row + row_diff, col + col_diff
-        map_dict[(row, col)] = None
+        filled.add((row, col))
 
- # IMPLEMENT FLOOD FILL
-volume = 0
-
-# volume = sum(1 for col in range(min_col, max_col+1) if (min_row, col) in map_dict)
-
-# for i in range(min_row+1, max_row):
-#     wall_flag = 0
-#     in_flag = -1
-
-#     for j in range(min_col, max_col+1):
-#         if (i, j) in map_dict:
-#             wall_flag = 1
-#         elif wall_flag==1:
-#             in_flag = in_flag * -1
-#             wall_flag = 0
-        
-#         if wall_flag==1 or in_flag==1:
-#             volume += 1
-
-# volume += sum(1 for col in range(min_col, max_col+1) if (max_row, col) in map_dict)
+filled = flood_fill((0, 0), filled)
 
 end_time_1 = timer()
 
-print(volume)
+print(len(filled))
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
 # # Part II
