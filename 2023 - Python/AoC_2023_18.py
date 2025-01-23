@@ -81,15 +81,18 @@ end_time_1 = timer()
 print(len(filled))
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
-# # Part II
+# Part II
 
-# start_time_2 = timer()
+start_time_2 = timer()
 
-# ans2 = 0
+ans2 = 0
 
+# New algorithm for parts I and II
+# Read in data from file, fill numpy arrays for both part I and part II
+# For both numpy arrays, calculate determinant
+# Divide by two for answers
 
+end_time_2 = timer()
 
-# end_time_2 = timer()
-
-# print(ans2)
-# print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
+print(ans2)
+print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
