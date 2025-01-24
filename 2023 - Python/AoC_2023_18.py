@@ -1,38 +1,5 @@
 from timeit import default_timer as timer
 
-def flood_fill(point, filled_set):
-    """
-    Fill the whole area enclosed by the borders in array, with point in it
-
-    Inputs:
-    point - tuple with grid coordinates (row, column)
-    filled - set with squares as entries, anything else as not entries
-
-    Outputs:
-    set with filled squares as entries, anything else as not entries
-    """
-
-    neighbors = ((0, 1), (0, -1), (1, 0), (-1, 0))
-    row, col = point
-
-    # Includes all points in the area, for which neighbors are not yet checked
-    point_set = {point}
-
-    filled_set.add(point)
-
-    # Continue with loop until point_set is empty (all neighbors are checked)
-    while point_set:
-        tmp_row, tmp_col = point_set.pop()
-
-        # Check all four neighbors, add them to filled, update point_set
-        for row_diff, col_diff in neighbors:
-            check_point = tmp_row + row_diff, tmp_col + col_diff
-            if check_point not in filled_set:
-                filled_set.add(check_point)
-                point_set.add(check_point)
-    
-    return filled_set
-
 start_time_1 = timer()
 
 TEST_NAME = 'Tests/Test_2023_18.txt'
@@ -41,58 +8,40 @@ INPUT_NAME = 'Inputs/Input_2023_18.txt'
 with open(INPUT_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
-# layout_size = 500
-# layout = [['.' for _ in range(layout_size)] for _ in range(layout_size)]
+direction_dict = {'U': (0, 1), 'D': (0, -1), 'L': (-1, 0), 'R': (1, 0),
+                  '3': (0, 1), '1': (0, -1), '2': (-1, 0), '0': (1, 0)}
 
-filled = set()
-direction_dict = {
-    'U': (-1, 0),
-    'D': (+1, 0),
-    'L': (0, +1),
-    'R': (0, -1)
-}
+row_1, col_1, row_2, col_2 = 0, 0, 0, 0
+volume_1, volume_2 = 0, 0
+num_blocks_1, num_blocks_2 = 0, 0
 
-row, col = 0, 0
+dirs = ['U', 'L', 'D', 'R']
+for idx, line in enumerate(file_lines):
+    direction_1, number_1, hex_number = line.split()
 
-min_row, max_row = 0, 0
-min_col, max_col = 0, 0
+    # Determine direction and amount of steps for part I
+    number_1 = int(number_1)
+    d_row_1, d_col_1 = direction_dict[direction_1]
+    new_row_1, new_col_1 = row_1 + d_row_1*number_1, col_1 + d_col_1*number_1
 
-for line in file_lines:
-    direction, number, _ = line.split()
-    
-    number = int(number)
-    row_diff, col_diff = direction_dict[direction]
+    volume_1 += row_1*new_col_1 - col_1*new_row_1
+    row_1, col_1 = new_row_1, new_col_1
+    num_blocks_1 += number_1
 
-    tmp_row = row + row_diff*number
-    min_row = tmp_row if tmp_row < min_row else min_row
-    max_row = tmp_row if tmp_row > max_row else max_row
-    tmp_col = col + col_diff*number
-    min_col = tmp_col if tmp_col < min_col else min_col
-    max_col = tmp_col if tmp_col > max_col else max_col
+    # Determine direction and amount of steps for part II
+    number_2 = int(hex_number[2:-2], 16)
+    d_row_2, d_col_2 = direction_dict[hex_number[-2]]
+    new_row_2, new_col_2 = row_2 + d_row_2*number_2, col_2 + d_col_2*number_2
 
-    for i in range(number):
-        row, col = row + row_diff, col + col_diff
-        filled.add((row, col))
+    volume_2 += row_2*new_col_2 - col_2*new_row_2
+    row_2, col_2 = new_row_2, new_col_2
+    num_blocks_2 += number_2
 
-filled = flood_fill((0, 0), filled)
+volume_1 = abs(volume_1 / 2) + num_blocks_1 / 2 + 1
+volume_2 = abs(volume_2 / 2) + num_blocks_2 / 2 + 1
 
 end_time_1 = timer()
 
-print(len(filled))
+print(int(volume_1))
+print(int(volume_2))
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
-
-# Part II
-
-start_time_2 = timer()
-
-ans2 = 0
-
-# New algorithm for parts I and II
-# Read in data from file, fill numpy arrays for both part I and part II
-# For both numpy arrays, calculate determinant
-# Divide by two for answers
-
-end_time_2 = timer()
-
-print(ans2)
-print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
