@@ -5,7 +5,7 @@ startTime1 = timer()
 TEST_NAME = 'Tests/Test_2023_16.txt'
 INPUT_NAME = 'Inputs/Input_2023_16.txt'
 
-with open(TEST_NAME, encoding='utf-8') as file:
+with open(INPUT_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
 layout, tiles = [], []
@@ -14,7 +14,7 @@ for line in file_lines:
     layout.append(list(line))
     tiles.append(['.' for _ in line])
 
-def energized_tiles(layout, tiles, location, direction, visited):
+def energized_tiles(layout, tiles, location, direction):
     """
     Determine energized tiles for a light beam coming in with direction at location
     """
@@ -23,23 +23,23 @@ def energized_tiles(layout, tiles, location, direction, visited):
 
     row, col = location
 
-    if (row, col, direction) in visited:
-        return tiles, visited
-
-    tiles[row][col] = '#'
-    visited.add((row, col, direction))
-
-    # row, col = row + direction[0], col + direction[1]
-    # if (row, col, direction) in visited or not (0<=row<=MAX_INDEX and 0<=col<=MAX_INDEX):
-    #     return tiles, visited
+    # if (row, col, direction) in visited:
+    #     return tiles
 
     # tiles[row][col] = '#'
     # visited.add((row, col, direction))
 
+    row, col = row + direction[0], col + direction[1]
+    if (row, col, direction) in visited or not (0<=row<=MAX_INDEX and 0<=col<=MAX_INDEX):
+        return tiles
+
+    tiles[row][col] = '#'
+    visited.add((row, col, direction))
+
     while layout[row][col]=='.':
         row, col = row + direction[0], col + direction[1]
         if (row, col, direction) in visited or not (0<=row<=MAX_INDEX and 0<=col<=MAX_INDEX):
-            return tiles, visited
+            return tiles
 
         tiles[row][col] = '#'
         visited.add((row, col, direction))
@@ -60,11 +60,16 @@ def energized_tiles(layout, tiles, location, direction, visited):
         directions = [(1, 0), (-1, 0)]
 
     for direction in directions:
-        tiles, visited = energized_tiles(layout, tiles, (row, col), direction, visited)
+        tiles = energized_tiles(layout, tiles, (row, col), direction)
 
-    return tiles, visited
+    return tiles
 
-tiles, _ = energized_tiles(layout, tiles, (4, 6), (1, 0), set())
+initial_location = (0, -1)
+initial_direction = (0, 1)
+
+# tiles[initial_location[0]][initial_location[1]] = '#'
+visited = set((initial_location[0], initial_location[1], initial_direction))
+tiles = energized_tiles(layout, tiles, initial_location, initial_direction)
 
 ans1 = sum((row.count('#') for row in tiles))
 
