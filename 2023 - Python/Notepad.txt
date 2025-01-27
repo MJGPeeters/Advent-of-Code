@@ -1,0 +1,55 @@
+Previous answers:
+
+Too low:
+765152270
+
+
+
+
+
+
+Notes
+
+bu -0-> br
+br -0-> f
+ f -1-> a 
+ f -1-> b 
+ a -0-> c 
+ b -0-> c 
+ c -0-> output
+ c -0-> output
+
+(f=1, a=1, b=1, c=0,0)
+
+bu -0-> br
+br -0-> f 
+ f -0-> a 
+ f -0-> b 
+ a -1-> c 
+ b -1-> c 
+ c -0-> output 
+ c -1-> output
+
+(f=0, a=0, b=0, c=1,1)
+
+bu -0-> br
+br -0-> f 
+ f -1-> a 
+ f -1-> b 
+ a -0-> c 
+ b -0-> c 
+ c -0-> output 
+ c -0-> output
+
+(f=1, a=1, b=1, c=0,0)
+
+bu -0-> br
+br -0-> f 
+ f -0-> a 
+ f -0-> b 
+ a -0-> c 
+ b -0-> c 
+ c -0-> output 
+ c -0-> output
+
+(f=0, a=0, b=0, c=0,0)
