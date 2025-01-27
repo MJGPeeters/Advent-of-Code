@@ -6,7 +6,7 @@ start_time_1 = timer()
 TEST_NAME = 'Tests/Test_2023_22.txt'
 INPUT_NAME = 'Inputs/Input_2023_22.txt'
 
-with open(INPUT_NAME, encoding='utf-8') as file:
+with open(TEST_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
 brick_heap = []
@@ -98,16 +98,19 @@ for brick_label in range(num_bricks):
     if direction!=2:
         brick_supported_by[brick_label] = len(bricks_supported_by)
 
+bricks_to_fall = {i: [] for i in range(num_bricks)}
+
 # Go through all bricks. For a given brick, check dictionary which bricks it supports. If these are only supported by the current brick, 
 #  it cannot be disintegrated. Otherwise it can. 
 for brick in range(num_bricks):
     supported_bricks = brick_supports[brick]
+
     candidate = 1
 
     for supported_brick in supported_bricks:
         if brick_supported_by[supported_brick]==1:
+            bricks_to_fall[brick].append(supported_brick)
             candidate = 0
-            break
     
     if candidate:
         ans1 += 1
@@ -123,7 +126,20 @@ start_time_2 = timer()
 
 ans2 = 0
 
+def total_falling_bricks(brick):
+    """
+    Determine total number of bricks that fall due to brick disintegrating
+    """
 
+    num_falling_bricks = 1
+
+    for supported_brick in bricks_to_fall[brick]:
+        num_falling_bricks += total_falling_bricks(supported_brick)
+    
+    return num_falling_bricks
+
+for brick in range(num_bricks):
+    ans2 += total_falling_bricks(brick)
 
 end_time_2 = timer()
 
