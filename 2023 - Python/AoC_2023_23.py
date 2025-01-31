@@ -1,37 +1,5 @@
 from timeit import default_timer as timer
 
-# def find_all_paths(pos, drc, goal_loc, map_dict):
-#     """
-#     Find the lengths of all paths from start to goal recursively
-#     """
-
-#     diffs = {1, 1j, -1, -1j}
-#     out_dict = {1: 'v', -1: '^', 1j: '>', -1j: '<'}
-
-#     path_length = 1
-#     next_path_lengths = []
-
-#     while True:
-#         new_drcs = diffs.difference({-drc})
-#         neighbors = [(pos + d, d, map_dict[pos + d]) for d in new_drcs if map_dict[pos + d] in {'.', out_dict[d]}]
-
-#         if len(neighbors)==1:
-#             pos, drc, _ = neighbors[0]
-
-#             if pos==goal_loc:
-#                 return path_length
-
-#             path_length += 1
-#         else:
-#             for neighbor_pos, neighbor_dir, _ in neighbors:
-#                 tmp = find_all_paths(neighbor_pos, neighbor_dir, goal_loc, map_dict)
-#                 if isinstance(tmp, int):
-#                     next_path_lengths.append(tmp)
-#                 else:
-#                     next_path_lengths += tmp
-
-#             return [path_length + next_length for next_length in next_path_lengths]
-
 def make_forest_graph(start_loc, start_drc, goal_loc, map_dict, graph_dict):
     """
     Make a graph that shows, for each crossroads, the distance to connected crossroads
@@ -87,8 +55,22 @@ def add_to_graph_dict(start_pos, curr_pos, path_len, graph_dict):
 
     return graph_dict
 
+def longest_path(start_loc, goal_loc, graph_dict):
+    """
+    Find longest path from start to goal in graph
+    """
 
+    u_paths = {(0, start_loc)}
+    f_paths = set()
 
+    while u_paths:
+        tmp_len, tmp_loc = u_paths.pop()
+        next = graph_dict[tmp_loc]
+
+        for next_p, l in next:
+            f_paths.add(tmp_len + l-1) if next_p==goal_loc else u_paths.add((tmp_len + l, next_p))
+
+    return max(f_paths)
 
 
 start_time_1 = timer()
@@ -96,7 +78,7 @@ start_time_1 = timer()
 TEST_NAME = 'Tests/Test_2023_23.txt'
 INPUT_NAME = 'Inputs/Input_2023_23.txt'
 
-with open(INPUT_NAME, encoding='utf-8') as file:
+with open(TEST_NAME, encoding='utf-8') as file:
     file_lines = file.read().splitlines()
 
 MAX_MAP_INDEX = len(file_lines) - 1
@@ -107,25 +89,23 @@ START = complex(0, 1)
 START_DIR = 1
 GOAL = complex(MAX_MAP_INDEX, MAX_MAP_INDEX - 1)
 
-# paths = find_all_paths(START, START_DIR, GOAL, forest_map)
 forest_graph = make_forest_graph(START, START_DIR, GOAL, forest_map, forest_graph)
-
-# ans1 = max(paths)
+ans1 = longest_path(START - START_DIR, GOAL, forest_graph)
 
 end_time_1 = timer()
 
-# print(ans1)
+print(ans1)
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
-# Part II
+# # Part II
 
-start_time_2 = timer()
+# start_time_2 = timer()
 
-ans2 = 0
+# ans2 = 0
 
-# Change possible 
+# # Change possible 
 
-end_time_2 = timer()
+# end_time_2 = timer()
 
-print(ans2)
-print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
+# print(ans2)
+# print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
