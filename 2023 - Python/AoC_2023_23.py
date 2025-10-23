@@ -1,4 +1,5 @@
 from timeit import default_timer as timer
+import copy
 
 def make_forest_graph(start_loc, start_drc, goal_loc, map_dict, graph_dict):
     """
@@ -49,13 +50,13 @@ def add_to_graph_dict(start_pos, curr_pos, path_len, graph_dict):
     Add graph vertex to dict
     """
     if start_pos not in graph_dict:
-        graph_dict[start_pos] = [(curr_pos, path_len)]
+        graph_dict[start_pos] = {(curr_pos, path_len)}
     else:
-        graph_dict[start_pos].append((curr_pos, path_len))
+        graph_dict[start_pos].add((curr_pos, path_len))
 
     return graph_dict
 
-def longest_path(start_loc, goal_loc, graph_dict):
+def longest_path_I(start_loc, goal_loc, graph_dict):
     """
     Find longest path from start to goal in graph
     """
@@ -72,6 +73,39 @@ def longest_path(start_loc, goal_loc, graph_dict):
 
     return max(f_paths)
 
+def expand_graph(graph_dict):
+    """
+    Expand graph from directed to undirected
+    """
+
+    expanded_graph = copy.copy(graph_dict)
+
+    for prev_pos, vals in graph_dict.items():
+        for next_pos, length in vals:
+            expanded_graph = add_to_graph_dict(next_pos, prev_pos, length, expanded_graph)
+
+    return expanded_graph
+
+def longest_path_II(start_loc, goal_loc, graph_dict):
+    """
+    Find longest path from start to goal in graph
+    """
+
+    u_paths = [(0, start_loc, set())]
+    f_paths = set()
+
+    while u_paths:
+        tmp_len, tmp_loc, prev_locs = u_paths.pop()
+        next = graph_dict[tmp_loc]
+
+        for next_p, l in next:
+            if next_p==goal_loc:
+                f_paths.add(tmp_len + l-1)
+            elif next_p not in prev_locs:
+                prev_locs.add(tmp_loc)
+                u_paths.append((tmp_len + l, next_p, prev_locs))
+
+    return max(f_paths)
 
 start_time_1 = timer()
 
@@ -90,22 +124,29 @@ START_DIR = 1
 GOAL = complex(MAX_MAP_INDEX, MAX_MAP_INDEX - 1)
 
 forest_graph = make_forest_graph(START, START_DIR, GOAL, forest_map, forest_graph)
-ans1 = longest_path(START - START_DIR, GOAL, forest_graph)
+ans1 = longest_path_I(START - START_DIR, GOAL, forest_graph)
 
 end_time_1 = timer()
 
 print(ans1)
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
 
-# # Part II
+# Part II
 
-# start_time_2 = timer()
+start_time_2 = timer()
 
-# ans2 = 0
+# Very similar algorithm as part I
 
-# # Change possible 
+# Make a different graph_dict, now with every neighbor for a crossroads
+dry_forest_graph = expand_graph(forest_graph)
 
-# end_time_2 = timer()
+# When arriving at a crossroads, try every neighbor
+# Check if neighbor is already in path, if so abort that path
+# If not, increase path length, add current position to history, add neighbor as current furthest point
+# Find longest path in the end
+ans2 = longest_path_II(START - START_DIR, GOAL, dry_forest_graph)
 
-# print(ans2)
-# print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
+end_time_2 = timer()
+
+print(ans2)
+print(f'Time elapsed: {end_time_2 - start_time_2:.6f} s')
