@@ -2,12 +2,13 @@ from timeit import default_timer as timer
 
 start_time_1 = timer()
 
+DAY_NUMBER = 1
 TEST = False
 
 if TEST:
-    FILE_NAME = "Example.txt"
+    FILE_NAME = "Day" + str(DAY_NUMBER) + "/Example.txt"
 else:
-    FILE_NAME = "Input.txt"
+    FILE_NAME = "Day" + str(DAY_NUMBER) + "/Input.txt"
 
 with open(FILE_NAME, 'r') as file:
     data = [line.strip() for line in file]
