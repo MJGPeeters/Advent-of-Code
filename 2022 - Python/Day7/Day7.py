@@ -36,7 +36,8 @@ for line in terminal_output:
     if line[0] in DIR_START:
         file_system
 
-    if line=='$ cd'
+    if line=='$ cd':
+        file_system
 
 
 end_time_1 = timer()
