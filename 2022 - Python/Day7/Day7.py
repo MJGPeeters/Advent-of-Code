@@ -1,25 +1,29 @@
 from timeit import default_timer as timer
 
+def find_directory_size(directory_name):
+    directory_size = 0
+
+    for element in file_system[directory_name]:
+        if isinstance(element, int):
+            directory_size += element
+        else:
+            directory_size += find_directory_size(element)
+
+    return directory_size
+
 start_time_1 = timer()
 
 DAY_NUMBER = 7
-TEST = True
+TEST = False
 
 if TEST:
     FILE_NAME = "Day" + str(DAY_NUMBER) + "/Example.txt"
 else:
     FILE_NAME = "Day" + str(DAY_NUMBER) + "/Input.txt"
 
-# def make_file_system(input_file_system, contents):
-
-
-
-#     return output_file_system
-
 with open(FILE_NAME, 'r') as file:
     terminal_output = [line.strip() for line in file]
 
-# FILE_START = '0123456789'
 file_system = {'/': []}
 current_dir = '/'
 size_sum = 0
@@ -38,6 +42,14 @@ for line in terminal_output:
     else:
         current_dir = line[5:]
         file_system[current_dir] = []
+
+size_sum = 0
+
+## Go through file_system and find sizes of all directories
+for dir in file_system:
+    dir_size = find_directory_size(dir)
+    if dir_size <= 100000:
+        size_sum += dir_size
 
 end_time_1 = timer()
 
