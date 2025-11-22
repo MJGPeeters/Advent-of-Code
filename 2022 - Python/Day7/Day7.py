@@ -13,32 +13,31 @@ else:
 # def make_file_system(input_file_system, contents):
 
 
+
 #     return output_file_system
 
 with open(FILE_NAME, 'r') as file:
     terminal_output = [line.strip() for line in file]
 
-FILE_START = '0123456789'
-DIR_START = 'd'
-file_system = {}
+# FILE_START = '0123456789'
+file_system = {'/': []}
+current_dir = '/'
 size_sum = 0
 
 ## Go through terminal output and find relevant groups of output
 for line in terminal_output:
-    if line=='$ cd /' or line=='$ ls':
+    if line=='$ cd /' or line=='$ cd ..' or line=='$ ls':
         continue
 
+    if line[0]=='d':
+        file_system[current_dir].append(line[4:])
+    
+    elif line[0] in '0123456789':
+        file_system[current_dir].append(int(line.split()[0]))
 
-
-    if line[0] in FILE_START:
-        file_system
-
-    if line[0] in DIR_START:
-        file_system
-
-    if line=='$ cd':
-        file_system
-
+    else:
+        current_dir = line[5:]
+        file_system[current_dir] = []
 
 end_time_1 = timer()
 
