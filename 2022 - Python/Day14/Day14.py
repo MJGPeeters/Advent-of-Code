@@ -1,6 +1,6 @@
 from timeit import default_timer as timer
 
-def falling_sand(tile_map, lowest_stone_height):
+def falling_sand_void(tile_map, lowest_stone_height):
     sand_pos_x = 500
     sand_pos_y = 0
 
@@ -13,6 +13,25 @@ def falling_sand(tile_map, lowest_stone_height):
             sand_pos_x -= 1
             sand_pos_y += 1
         elif (sand_pos_x + 1, sand_pos_y + 1) not in tile_map:
+            sand_pos_x += 1
+            sand_pos_y += 1
+        else:
+            tile_map[(sand_pos_x, sand_pos_y)] = 1
+            return 1, tile_map
+
+def falling_sand_floor(tile_map, lowest_stone_height):
+    floor_y = lowest_stone_height + 2
+    
+    sand_pos_x = 500
+    sand_pos_y = 0
+
+    while True:
+        if (sand_pos_x, sand_pos_y + 1) not in tile_map and sand_pos_y + 1 != floor_y:
+            sand_pos_y += 1
+        elif (sand_pos_x - 1, sand_pos_y + 1) not in tile_map and sand_pos_y + 1 != floor_y:
+            sand_pos_x -= 1
+            sand_pos_y += 1
+        elif (sand_pos_x + 1, sand_pos_y + 1) not in tile_map and sand_pos_y + 1 != floor_y:
             sand_pos_x += 1
             sand_pos_y += 1
         else:
@@ -56,14 +75,21 @@ for scan in scans:
         if y_e>max_y:
             max_y = y_e
 
-num_units = 0
+num_units_void, num_units_floor = 0, 0
 rest_bool = 1
+source_unblocked = 0
 
 while rest_bool:
-    rest_bool, rock_dict = falling_sand(rock_dict, max_y)
-    num_units += rest_bool
+    rest_bool, rock_dict = falling_sand_void(rock_dict, max_y)
+    num_units_void += rest_bool
+
+
+while (500, 0) not in rock_dict:
+    source_unblocked, rock_dict = falling_sand_floor(rock_dict, max_y)
+    num_units_floor += source_unblocked
 
 end_time_1 = timer()
 
-print(num_units)
+print(num_units_void)
+print(num_units_void+num_units_floor)
 print(f'Time elapsed: {end_time_1 - start_time_1:.6f} s')
