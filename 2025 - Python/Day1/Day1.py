@@ -13,34 +13,25 @@ else:
 with open(FILE_NAME, 'r') as file:
     rotations = [line.strip() for line in file]
 
-dial_value, password_old, password_new = 50, 0, 0
+dial_value = 50
+password_old, password_new = 0, 0
 
 for rotation in rotations:
+    rotation_dist = int(rotation[1:])
+    rotation_dist_rem = rotation_dist%100
+    zero_crossings = rotation_dist//100
+
     if rotation[0]=='L':
-        dial_value = (dial_value - int(rotation[1:]))%100
+        extra_zero_crossing = 1 if dial_value<rotation_dist_rem and dial_value!=0 else 0 
+        dial_value = (dial_value - rotation_dist)%100
     else:
-        dial_value = (dial_value + int(rotation[1:]))%100
+        extra_zero_crossing = abs(dial_value + rotation_dist_rem - 1)//100
+        dial_value = (dial_value + rotation_dist)%100
     
+    password_new += zero_crossings + extra_zero_crossing
+
     if dial_value==0:
         password_old += 1
-
-dial_value = 50
-
-for rotation in rotations:
-    if rotation[0]=='L':
-        new_dial_value = dial_value - int(rotation[1:])
-        if dial_value==0:
-            password_new += abs(new_dial_value+1)//100
-        elif new_dial_value<0:
-            password_new += 1 + abs(new_dial_value+1)//100
-    else:
-        new_dial_value = dial_value + int(rotation[1:])
-        if new_dial_value>99:
-            password_new += abs(new_dial_value-1)//100
-    
-    dial_value = new_dial_value%100
-
-    if dial_value==0:
         password_new += 1
 
 end_time = timer()
