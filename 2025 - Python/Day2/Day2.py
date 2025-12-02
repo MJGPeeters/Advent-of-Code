@@ -37,4 +37,4 @@ end_time = timer()
 
 print(invalid_ID_accum_1)
 print(invalid_ID_accum_2)
-print(f'Time elapsed: {end_time - start_time:.6f} s')
+print(f'Time elapsed: {(end_time - start_time)*1000:.3f} ms')
