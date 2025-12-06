@@ -2,6 +2,12 @@ from timeit import default_timer as timer
 from functools import reduce
 import operator
 
+def add_or_multiply(numbers, op):
+    if op=='+':
+        return sum(number for number in numbers)
+    else:
+        return reduce(operator.mul, (number for number in numbers))
+
 start_time = timer()
 
 DAY_NUMBER = 6
@@ -15,44 +21,32 @@ else:
 with open(FILE_NAME, 'r') as file:
     homework = [line[0:-1] for line in file]
 
-num_problems, group_size = len(homework[0]), len(homework)-1
+group_rows = len(homework)-1
 grand_total_p1, grand_total_p2 = 0, 0
 
-op_idx_list = [i for i,n in enumerate(homework[group_size]) if n=='+' or n=='*']
+op_idx_list = [i for i,n in enumerate(homework[group_rows]) if n=='+' or n=='*']
 
-for i, op_idx in enumerate(op_idx_list):
+for op_num, op_idx in enumerate(op_idx_list):
+    op = homework[group_rows][op_idx]
 
-    # Determine horizontal numbers and operator
-    op = homework[group_size][op_idx]
-
-    # Determine amount of vertical numbers
-    if i==len(op_idx_list)-1:
-        num_vertical_numbers = len(homework[0]) - op_idx
+    if op_num==len(op_idx_list)-1:
+        group_cols = len(homework[0]) - op_idx
     else:
-        num_vertical_numbers = op_idx_list[i+1] - op_idx_list[i] - 1
+        group_cols = op_idx_list[op_num+1] - op_idx_list[op_num] - 1
 
-    # # Part 1
-    nums = [int(homework[r][op_idx:op_idx+num_vertical_numbers]) for r in range(group_size)]
-    if op=='+':
-        grand_total_p1 += sum(int(nums[j]) for j in range(group_size))
-    else:
-        grand_total_p1 += reduce(operator.mul, (int(nums[j]) for j in range(group_size)))
+    numbers_1 = [int(homework[r][op_idx:op_idx+group_cols]) for r in range(group_rows)]
 
-    # Part 2
-    # Determine the vertical numbers, and either add or multiply them
-    nums = []
-    for c in range(op_idx, op_idx+num_vertical_numbers):
+    numbers_2 = []
+    for c in range(op_idx, op_idx+group_cols):
         num, mult = 0, 1
-        for r in range(group_size-1, -1, -1):
+        for r in range(group_rows-1, -1, -1):
             if homework[r][c]!=' ':
                 num += int(homework[r][c])*mult
                 mult = 10*mult
-        nums.append(num)
+        numbers_2.append(num)
 
-    if op=='+':
-        grand_total_p2 += sum(int(nums[j]) for j in range(num_vertical_numbers))
-    else:
-        grand_total_p2 += reduce(operator.mul, (int(nums[j]) for j in range(num_vertical_numbers)))
+    grand_total_p1 += add_or_multiply(numbers_1, op)
+    grand_total_p2 += add_or_multiply(numbers_2, op)
 
 end_time = timer()
 
