@@ -12,14 +12,14 @@ if TEST:
     num_connections = 10
 else:
     FILE_NAME = "Day" + str(DAY_NUMBER) + "/Input.txt"
-    num_connections = 1000
+    num_connections = 5000
 
 with open(FILE_NAME, 'r') as file:
     junctions = [tuple(int(pos) for pos in line.strip().split(',')) for line in file]
 
 shortest_distances = SortedDict()
 for i in range(num_connections):
-    shortest_distances[10**6 - i] = 0
+    shortest_distances[10**7 - i] = 0
 max_distance = 10**6
 
 for idx_junction, junction in enumerate(junctions):
@@ -37,7 +37,7 @@ for idx_junction, junction in enumerate(junctions):
 first_circuit = shortest_distances.popitem(0)[1]
 circuits = [first_circuit]
 
-for k in shortest_distances:
+for idx_k,k in enumerate(shortest_distances):
     jb1, jb2 = shortest_distances[k]
 
     new_circuit_flag = 1
@@ -63,12 +63,18 @@ for k in shortest_distances:
     if new_circuit_flag:
         circuits.append({jb1, jb2})
 
-circuit_sizes = [len(c) for c in circuits]
-circuit_sizes.sort(reverse=True)
+    if idx_k==998:
+        circuit_sizes = [len(c) for c in circuits]
+        circuit_sizes.sort(reverse=True)
 
-circuit_product = circuit_sizes[0]*circuit_sizes[1]*circuit_sizes[2]
+        circuit_product = circuit_sizes[0]*circuit_sizes[1]*circuit_sizes[2]
+
+    if len(circuits)==1:
+        coordinates_product = junctions[jb1][0]*junctions[jb2][0]
+        break
 
 end_time = timer()
 
 print(circuit_product)
+print(coordinates_product)
 print(f'Time elapsed: {(end_time - start_time)*1000:.3f} ms')
