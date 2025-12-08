@@ -12,25 +12,24 @@ if TEST:
     num_connections = 10
 else:
     FILE_NAME = "Day" + str(DAY_NUMBER) + "/Input.txt"
-    num_connections = 5000
+    num_connections = 1000
 
 with open(FILE_NAME, 'r') as file:
     junctions = [tuple(int(pos) for pos in line.strip().split(',')) for line in file]
 
 shortest_distances = SortedDict()
-for i in range(num_connections):
-    shortest_distances[10**7 - i] = 0
-max_distance = 10**6
+max_distance = 10**10
+max_connections = 5*num_connections
+
+for i in range(max_connections):
+    shortest_distances[max_distance - i] = 0
 
 for idx_junction, junction in enumerate(junctions):
+    jx, jy, jz = junction
     for i in range(idx_junction+1,len(junctions)):
-        distance = m.sqrt((junction[0] - junctions[i][0])**2 + (junction[1] - junctions[i][1])**2 + (junction[2] - junctions[i][2])**2)
+        distance = m.sqrt((jx - junctions[i][0])**2 + (jy - junctions[i][1])**2 + (jz - junctions[i][2])**2)
         if distance<max_distance:
-            if distance in shortest_distances:
-                shortest_distances[distance].add(idx_junction, i)
-            else:
-                shortest_distances[distance] = {idx_junction, i}
-
+            shortest_distances[distance] = {idx_junction, i}
             shortest_distances.popitem()
             max_distance = shortest_distances.peekitem()[0]
 
@@ -46,7 +45,7 @@ for idx_k,k in enumerate(shortest_distances):
     for idx_circuit, circuit in enumerate(circuits):
         if jb1 in circuit and jb2 in circuit:
             new_circuit_flag = 0
-            continue
+            break
         elif jb1 in circuit:
             jb1_flag = idx_circuit
             circuit.add(jb2)
@@ -63,13 +62,14 @@ for idx_k,k in enumerate(shortest_distances):
     if new_circuit_flag:
         circuits.append({jb1, jb2})
 
-    if idx_k==998:
+    # Part 1
+    if idx_k==num_connections-2:
         circuit_sizes = [len(c) for c in circuits]
         circuit_sizes.sort(reverse=True)
-
         circuit_product = circuit_sizes[0]*circuit_sizes[1]*circuit_sizes[2]
 
-    if len(circuits)==1:
+    # Part 2
+    if len(circuits[0])==len(junctions):
         coordinates_product = junctions[jb1][0]*junctions[jb2][0]
         break
 
