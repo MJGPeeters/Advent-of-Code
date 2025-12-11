@@ -1,7 +1,9 @@
 from timeit import default_timer as timer
 from collections import deque as dq
+import numpy as np
+from sympy import *
 
-def start_machine(goal, steps):
+def bfs(goal, steps):
     starting_point = tuple(0 for _ in range(len(goal)))
 
     visited_points = {starting_point:0}
@@ -19,6 +21,27 @@ def start_machine(goal, steps):
             if new_point not in visited_points:
                 visited_points[new_point] = current_presses + 1
                 queue.append(new_point)
+
+def dfs(goal, steps):
+    # IMPLEMENT STOPPING WHEN ANY COUNTER IS OVER ITS REQUIREMENT
+    starting_point = tuple(0 for _ in range(len(goal)))
+
+    visited_points = {starting_point:0}
+    queue = dq([starting_point])
+
+    while queue:
+        current_point = queue.pop()
+        current_presses = visited_points[current_point]
+
+        if current_point==goal:
+            return visited_points[goal]
+        
+        for step in steps:
+            new_point = tuple(sum(x) for x in zip(current_point,step))
+            if new_point not in visited_points:
+                visited_points[new_point] = current_presses + 1
+                queue.append(new_point)
+
 
 start_time = timer()
 
@@ -52,7 +75,19 @@ total_presses = 0
 for machine in manual:
     goal, steps, joltages = machine
 
-    total_presses += start_machine(goal, steps)
+    total_presses += bfs(goal, steps)
+
+    # # Part 2
+    # For a list of possible button presses and a certain joltages goal:
+
+    # Take the first button, and check the maximum amount of presses possible without going over the goal
+
+    # Then, subtract these button presses from the goal, and check for the next button, etc.
+
+    # Do this for every permutation of the different buttons, keeping track of number of button presses
+    # to reach the goal
+
+    # 
 
 end_time = timer()
 
